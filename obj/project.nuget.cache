@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "9jRvk9nnQZHDx8YGfubY+BzFtkZChQieHWp7f3B+eH/0N2+8o37dtgbFHjd8I5+BaEr0ibS85y+yfMl2IadyhA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\drach\\OneDrive\\Term5\\Proj3112\\Assignments\\SprintCompass\\SprintCompass_Group4\\SprintCompass_Group4\\SprintCompass_Group4.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\drach\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.12\\microsoft.netcore.app.host.win-x64.5.0.12.nupkg.sha512"
+  ],
+  "logs": []
+}
