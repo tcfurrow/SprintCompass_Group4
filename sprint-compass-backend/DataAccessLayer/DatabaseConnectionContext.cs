@@ -1,6 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 
-namespace SprintCompassBackend
+namespace SprintCompassBackend.DataAccessLayer
 {
     public class DatabaseConnectionContext
     {
