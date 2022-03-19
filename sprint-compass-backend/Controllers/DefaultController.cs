@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using SprintCompassBackend.DataAccessLayer;
 using System;
 
 namespace SprintCompassBackend.Controllers
