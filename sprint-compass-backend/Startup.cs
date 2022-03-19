@@ -8,17 +8,22 @@ namespace SprintCompassBackend
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+        public string ConnectionStringName { get; } = "Development";
+        public string ClientDevelopmentEndpoint { get; } = "http://localhost:3000";
+        public string CorsPolicyName { get; } = "_corsDevelopment";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options => options.AddPolicy(CorsPolicyName, builder => builder.WithOrigins(ClientDevelopmentEndpoint).AllowAnyHeader().AllowAnyMethod()));
             services.AddControllers();
+            services.Add(new ServiceDescriptor(typeof(DatabaseConnectionContext), new DatabaseConnectionContext(Configuration.GetConnectionString(ConnectionStringName))));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -30,9 +35,8 @@ namespace SprintCompassBackend
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
+            app.UseCors(CorsPolicyName);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
