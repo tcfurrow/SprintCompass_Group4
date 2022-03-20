@@ -127,5 +127,29 @@ namespace SprintCompassBackendUnitTests
             Assert.Equal(projectToUpdate.Description, updatedProject.Description);
             Assert.Null(projectToUpdate.StartDate);
         }
+
+        [Fact]
+        public async void TestGetProductBacklog()
+        {
+            int projectId = 1;
+
+            ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
+            List<ProjectTask> productBacklog = await projectDao.GetProductBacklog(projectId);
+
+            ProjectTask firstTask = productBacklog[0];
+            ProjectTask secondTask = productBacklog[1];
+
+            Assert.Equal("Capture/Maintain basic project information", firstTask.Title);
+            Assert.Equal("Facilitate information collection", firstTask.Description);
+            Assert.Equal(1, firstTask.Priority);
+            Assert.Equal(8, firstTask.RelativeEstimate);
+            Assert.Equal(1040m, firstTask.Cost);
+
+            Assert.Equal("Maintain a list of team members assigned to the project", secondTask.Title);
+            Assert.Equal("Track estimated and actual times for each team member", secondTask.Description);
+            Assert.Equal(2, secondTask.Priority);
+            Assert.Equal(1, secondTask.RelativeEstimate);
+            Assert.Equal(130m, secondTask.Cost);
+        }
     }
 }

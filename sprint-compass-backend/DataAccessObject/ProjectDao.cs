@@ -105,6 +105,7 @@ namespace SprintCompassBackend.DataAccessObject
                     string projectDescription = resultReader.GetString(2);
                     int projectTeamOwnerId = resultReader.GetInt32(3);
                     DateTime? startDate = null;
+                    List<ProjectTask> productBacklog = await GetProductBacklog(projectId);
 
                     // Get the start date if it is not null
                     if (!await resultReader.IsDBNullAsync(4))
@@ -118,7 +119,7 @@ namespace SprintCompassBackend.DataAccessObject
                         projectTeamOwner = await teamDao.GetTeamById(projectTeamOwnerId);
                     }
 
-                    teamProjectList.Add(new Project(projectId, projectName, projectDescription, projectTeamOwner, startDate));
+                    teamProjectList.Add(new Project(projectId, projectName, projectDescription, projectTeamOwner, startDate, productBacklog));
                 }
             }
             catch (Exception ex)
@@ -127,6 +128,44 @@ namespace SprintCompassBackend.DataAccessObject
             }
 
             return teamProjectList;
+        }
+
+        public async Task<List<ProjectTask>> GetProductBacklog(int projectId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            List<ProjectTask> projectTasks = new List<ProjectTask>();
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, project_id, title, description, priority, relative_estimate, cost FROM product_backlog WHERE project_id = ?projectId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
+
+                await mySqlSelectCmd.ExecuteNonQueryAsync();
+
+                DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
+
+                // Read over every row
+                while (await resultReader.ReadAsync())
+                {
+                    int taskId = resultReader.GetInt32(0);
+                    string title = resultReader.GetString(2);
+                    string description = resultReader.GetString(3);
+                    int priority = resultReader.GetInt32(4);
+                    int relativeEstimate = resultReader.GetInt32(5);
+                    decimal cost = resultReader.GetDecimal(6);
+
+                    projectTasks.Add(new ProjectTask(taskId, title, description, priority, relativeEstimate, cost));
+                }
+            }
+            catch (Exception)
+            {
+                // TODO: Log exception
+            }
+
+            return projectTasks;
         }
     }
 }
