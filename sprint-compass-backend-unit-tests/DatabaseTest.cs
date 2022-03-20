@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
@@ -171,6 +172,21 @@ namespace SprintCompassBackendUnitTests
             Assert.Equal(description, projectTask.Description);
             Assert.Equal(priority, projectTask.Priority);
             Assert.Equal(cost, projectTask.Cost);
+        }
+
+        [Fact]
+        public async void TestCalculatedEstimateValues()
+        {
+            int teamId = 1;
+
+            ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
+            List<Project> teamProjects = await projectDao.GetProjectsByTeamId(teamId);
+
+            Project sprintCompassProject = teamProjects.FirstOrDefault(proj => proj.Name == "SprintCompass");
+
+            Assert.NotNull(sprintCompassProject);
+            Assert.True(sprintCompassProject.StoryPointsEstimateTotal > 0);
+            Assert.True(sprintCompassProject.EstimatedCostTotal > 0.0m);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 #nullable enable
 
@@ -13,6 +14,10 @@ namespace SprintCompassBackend.Entities
         public Team? Team { get; set; }
         public DateTime? StartDate { get; set; }
         public List<ProjectTask> ProductBacklog { get; set; }
+
+        public int StoryPointsEstimateTotal => ProductBacklog?.Sum(projTask => projTask.RelativeEstimate) ?? 0;
+
+        public decimal EstimatedCostTotal => ProductBacklog?.Sum(projTask => projTask.Cost) ?? 0.0m;
 
         public Project(int id, string name, string description, Team? team, DateTime? startDate, List<ProjectTask> productBacklog)
         {
