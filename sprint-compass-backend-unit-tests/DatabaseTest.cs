@@ -84,5 +84,48 @@ namespace SprintCompassBackendUnitTests
 
             Assert.Equal(initialTeamProjectsList.Count + 1, finalTeamProjectsList.Count);
         }
+
+        [Fact]
+        public async void TestUpdateProject()
+        {
+            int teamId = 1;
+            int projectIndex = 1;
+
+            ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
+
+            List<Project> teamProjectList = await projectDao.GetProjectsByTeamId(teamId);
+            
+            Project projectToUpdate = teamProjectList[projectIndex];
+            projectToUpdate.Name = "StackOverflow";
+            projectToUpdate.Description = "The best thing a programmer can have.";
+            projectToUpdate.StartDate = DateTime.Now;
+
+            bool projectUpdated = await projectDao.UpdateProject(projectToUpdate);
+
+            Assert.True(projectUpdated);
+
+            teamProjectList = await projectDao.GetProjectsByTeamId(teamId);
+
+            Project updatedProject = teamProjectList[projectIndex];
+
+            Assert.Equal(projectToUpdate.Name, updatedProject.Name);
+            Assert.Equal(projectToUpdate.Description, updatedProject.Description);
+            Assert.NotNull(projectToUpdate.StartDate);
+
+            projectToUpdate.Name = "GitHub";
+            projectToUpdate.Description = "The home of open-source software!";
+            projectToUpdate.StartDate = null;
+
+            projectUpdated = await projectDao.UpdateProject(projectToUpdate);
+
+            Assert.True(projectUpdated);
+
+            teamProjectList = await projectDao.GetProjectsByTeamId(teamId);
+            updatedProject = teamProjectList[projectIndex];
+
+            Assert.Equal(projectToUpdate.Name, updatedProject.Name);
+            Assert.Equal(projectToUpdate.Description, updatedProject.Description);
+            Assert.Null(projectToUpdate.StartDate);
+        }
     }
 }

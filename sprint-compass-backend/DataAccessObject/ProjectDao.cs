@@ -49,6 +49,36 @@ namespace SprintCompassBackend.DataAccessObject
             return addedProject;
         }
 
+        public async Task<bool> UpdateProject(Project project)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+            bool projectUpdated = false;
+
+            if (project.Id > 0 && project.Team is not null)
+            {
+                try
+                {
+                    await dbConn.OpenAsync();
+
+                    using MySqlCommand mySqlUpdateCmd = new MySqlCommand("UPDATE project SET name = ?name, description = ?description, team_id = ?teamId, start_date = ?startDate WHERE id = ?projectId;", dbConn);
+                    mySqlUpdateCmd.Parameters.Add("?name", MySqlDbType.VarString).Value = project.Name;
+                    mySqlUpdateCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = project.Description;
+                    mySqlUpdateCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = project.Team.Id;
+                    mySqlUpdateCmd.Parameters.Add("?startDate", MySqlDbType.DateTime).Value = project.StartDate ?? DBNull.Value as object;
+                    mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = project.Id;
+
+                    int rowsUpdated = await mySqlUpdateCmd.ExecuteNonQueryAsync();
+                    projectUpdated = rowsUpdated > 0;
+                }
+                catch (Exception)
+                {
+                    // TODO: Log exception
+                }
+            }
+
+            return projectUpdated;
+        }
+
         public async Task<List<Project>> GetProjectsByTeamId(int teamId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
