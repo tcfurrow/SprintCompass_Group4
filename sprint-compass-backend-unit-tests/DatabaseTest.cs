@@ -57,7 +57,7 @@ namespace SprintCompassBackendUnitTests
             ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
             List<Project> teamProjects = await projectDao.GetProjectsByTeamId(1);
 
-            // Note from Darian: I only added one project to the team with the id if 1 in the
+            // Note from Darian: I only added one project to the team with the id of 1 in the
             // development database. If you add more projects to the team, comment out the line below.
             // Assert.Single(teamProjects);
 
