@@ -58,7 +58,7 @@ namespace SprintCompassBackendUnitTests
 
             // Note from Darian: I only added one project to the team with the id if 1 in the
             // development database. If you add more projects to the team, comment out the line below.
-            Assert.Single(teamProjects);
+            // Assert.Single(teamProjects);
 
             Project firstProject = teamProjects[0];
 
