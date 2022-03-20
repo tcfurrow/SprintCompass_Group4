@@ -151,5 +151,26 @@ namespace SprintCompassBackendUnitTests
             Assert.Equal(1, secondTask.RelativeEstimate);
             Assert.Equal(130m, secondTask.Cost);
         }
+
+        [Fact]
+        public async void TestAddProjectTaskToProductBacklog()
+        {
+            ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
+
+            int projectId = 1;
+            string title = "Capture/Maintain the product backlog including relative estimates(and estimated costs)";
+            string description = "Establish a benchmark for comparison purposes.";
+            int priority = 3;
+            int relativeEstimate = 5;
+            decimal cost = 650m;
+
+            ProjectTask projectTask = await projectDao.AddProjectTask(projectId, title, description, priority, relativeEstimate, cost);
+
+            Assert.NotNull(projectTask);
+            Assert.Equal(title, projectTask.Title);
+            Assert.Equal(description, projectTask.Description);
+            Assert.Equal(priority, projectTask.Priority);
+            Assert.Equal(cost, projectTask.Cost);
+        }
     }
 }

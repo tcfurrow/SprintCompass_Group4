@@ -30,19 +30,26 @@ namespace SprintCompassBackend.DataAccessObject
 
             if (team is not null)
             {
-                await dbConn.OpenAsync();
-
-                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO project (name, description, team_id, start_date) VALUES (?name, ?description, ?teamId, NULL);", dbConn);
-                mySqlInsertCmd.Parameters.Add("?name", MySqlDbType.VarString).Value = name;
-                mySqlInsertCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = description;
-                mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
-
-                int rowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
-
-                if (rowsAdded == 1)
+                try
                 {
-                    List<Project> teamProjects = await GetProjectsByTeamId(teamId);
-                    addedProject = teamProjects.LastOrDefault();
+                    await dbConn.OpenAsync();
+
+                    using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO project (name, description, team_id, start_date) VALUES (?name, ?description, ?teamId, NULL);", dbConn);
+                    mySqlInsertCmd.Parameters.Add("?name", MySqlDbType.VarString).Value = name;
+                    mySqlInsertCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = description;
+                    mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+
+                    int totalRowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
+
+                    if (totalRowsAdded == 1)
+                    {
+                        List<Project> teamProjects = await GetProjectsByTeamId(teamId);
+                        addedProject = teamProjects.LastOrDefault();
+                    }
+                }
+                catch (Exception)
+                {
+                    // TODO: Log exception
                 }
             }
 
@@ -128,6 +135,40 @@ namespace SprintCompassBackend.DataAccessObject
             }
 
             return teamProjectList;
+        }
+
+        public async Task<ProjectTask?> AddProjectTask(int projectId, string title, string description, int priority, int relativeEstimate, decimal cost)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            ProjectTask? addedProjectTask = null;
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO product_backlog (project_id, title, description, priority, relative_estimate, cost) VALUES (?projectId, ?title, ?description, ?priority, ?relativeEstimate, ?cost);", dbConn);
+                mySqlInsertCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
+                mySqlInsertCmd.Parameters.Add("?title", MySqlDbType.VarString).Value = title;
+                mySqlInsertCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = description;
+                mySqlInsertCmd.Parameters.Add("?priority", MySqlDbType.Int32).Value = priority;
+                mySqlInsertCmd.Parameters.Add("?relativeEstimate", MySqlDbType.Int32).Value = relativeEstimate;
+                mySqlInsertCmd.Parameters.Add("?cost", MySqlDbType.Decimal).Value = cost;
+
+                int totalRowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
+
+                if (totalRowsAdded == 1)
+                {
+                    List<ProjectTask> projectProductBacklog = await GetProductBacklog(projectId);
+                    addedProjectTask = projectProductBacklog.LastOrDefault();
+                }
+            }
+            catch (Exception)
+            {
+                // TODO: Log exception
+            }
+
+            return addedProjectTask;
         }
 
         public async Task<List<ProjectTask>> GetProductBacklog(int projectId)
