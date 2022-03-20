@@ -4,7 +4,7 @@ namespace SprintCompassBackend.DataAccessLayer
 {
     public class DatabaseConnectionContext
     {
-        private string _connectionString;
+        private readonly string _connectionString;
 
         public DatabaseConnectionContext(string connectionString)
         {
