@@ -32,10 +32,7 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlInsertCmd = new MySqlCommand();
-
-                mySqlInsertCmd.Connection = dbConn;
-                mySqlInsertCmd.CommandText = "INSERT INTO project (name, description, team_id, start_date) VALUES (?name, ?description, ?teamId, NULL);";
+                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO project (name, description, team_id, start_date) VALUES (?name, ?description, ?teamId, NULL);", dbConn);
                 mySqlInsertCmd.Parameters.Add("?name", MySqlDbType.VarString).Value = name;
                 mySqlInsertCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = description;
                 mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
@@ -63,11 +60,9 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand();
-
-                mySqlSelectCmd.Connection = dbConn;
-                mySqlSelectCmd.CommandText = "SELECT id, name, description, team_id, start_date FROM project WHERE team_id = ?teamId;";
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name, description, team_id, start_date FROM project WHERE team_id = ?teamId;", dbConn);
                 mySqlSelectCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
                 DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();

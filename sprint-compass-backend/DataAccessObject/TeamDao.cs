@@ -40,11 +40,7 @@ namespace SprintCompassBackend.DataAccessObject
             try
             {
                 await dbConn.OpenAsync();
-
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand();
-
-                mySqlSelectCmd.Connection = dbConn;
-                mySqlSelectCmd.CommandText = "SELECT id, name FROM team;";
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name FROM team;", dbConn);
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
                 DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
@@ -76,11 +72,9 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand();
-
-                mySqlSelectCmd.Connection = dbConn;
-                mySqlSelectCmd.CommandText = "SELECT id, name FROM team WHERE id = ?teamId;";
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name FROM team WHERE id = ?teamId;", dbConn);
                 mySqlSelectCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
                 // Only read one row if this query returns any. If the query doesn't return any rows then
@@ -115,11 +109,9 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand();
-
-                mySqlSelectCmd.Connection = dbConn;
-                mySqlSelectCmd.CommandText = "SELECT tml.id, tml.team_id, tml.user_id, tml.role_id, user.first_name, user.last_name FROM team_member_list tml INNER JOIN user ON user.id = user_id WHERE team_id = ?teamId;";
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT tml.id, tml.team_id, tml.user_id, tml.role_id, user.first_name, user.last_name FROM team_member_list tml INNER JOIN user ON user.id = user_id WHERE team_id = ?teamId;", dbConn);
                 mySqlSelectCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
                 DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();

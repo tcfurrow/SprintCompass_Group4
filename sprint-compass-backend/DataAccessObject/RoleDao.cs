@@ -24,11 +24,7 @@ namespace SprintCompassBackend.DataAccessObject
             try
             {
                 await dbConn.OpenAsync();
-
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand();
-
-                mySqlSelectCmd.Connection = dbConn;
-                mySqlSelectCmd.CommandText = "SELECT id, name FROM role;";
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name FROM role;", dbConn);
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
                 DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
