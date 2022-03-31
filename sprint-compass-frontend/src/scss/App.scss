@@ -18,10 +18,16 @@ body, html {
 
 .MuiCardContent-root {
     & button {
-        & > svg {
-            margin-right: 0.5em;
+        &:not(.icon-only-button) {
+            & > svg {
+                margin-right: 0.5em;
+            }
         }
     }
+}
+
+.icon-only-button {
+    padding: 1em !important;
 }
 
 .nav-bar {

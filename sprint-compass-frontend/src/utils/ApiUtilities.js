@@ -58,6 +58,6 @@ export const httpUpdate = async (apiEndpoint, jsonRequestBody) => {
     return await performHttpMethod("put", apiEndpoint, jsonRequestBody);
 }
 
-export const httpRemove = async (apiEndpoint, jsonRequestBody) => {
+export const httpDelete = async (apiEndpoint, jsonRequestBody) => {
     return await performHttpMethod("delete", apiEndpoint, jsonRequestBody);
 }

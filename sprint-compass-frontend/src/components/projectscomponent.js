@@ -21,10 +21,11 @@ import {
     Typography
 } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
-import { faArrowLeft, faPlus, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faPlus, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ThemeProvider } from "@mui/material/styles";
-import { httpGet } from "../utils/ApiUtilities";
+import YesNoDialog from "./ui/YesNoDialog";
+import { httpDelete, httpGet } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { useNavigate } from "react-router-dom";
 import "../scss/App.scss";
@@ -35,7 +36,10 @@ const ProjectsComponent = (props) => {
     const initialState = {
         selectedTeamId: -1,
         teamList: [],
-        teamProjects: []
+        teamProjects: [],
+        projectToDelete: null,
+        showDeleteProjectWarningDialog: false,
+        projectedDeletedSuccessfully: false,
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -58,6 +62,16 @@ const ProjectsComponent = (props) => {
         })();
     }, [ state.selectedTeamId ]);
 
+    useEffect(() => {
+        if (state.selectedTeamId === -1 || !state.projectedDeletedSuccessfully) {
+            return;
+        }
+
+        (async () => {
+            await fetchTeamProjects(state.selectedTeamId);
+        })();
+    }, [ state.projectedDeletedSuccessfully ]);
+
     const fetchTeams = async () => {
         try {
             props.showSnackbarMessage("Fetching list of teams...");
@@ -75,6 +89,8 @@ const ProjectsComponent = (props) => {
 
     const fetchTeamProjects = async (teamId) => {
         try {
+            setState({ teamProjects: [] });
+
             props.showSnackbarMessage(`Fetching list of projects for team id ${teamId}...`);
 
             const teamProjects = await httpGet(`api/project/${teamId}`);
@@ -96,6 +112,50 @@ const ProjectsComponent = (props) => {
         setState({
             selectedTeamId: -1,
             teamProjects: []
+        });
+    }
+
+    const onDeleteProjectButtonClicked = (event) => {
+        // TODO: We should probably do data validation here to make sure that the project id is indeed an integer
+        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-delete"));
+        const projectToDelete = state.teamProjects.find(project => project.id === projectId);
+
+        setState({
+            projectToDelete: projectToDelete,
+            showDeleteProjectWarningDialog: true
+        });
+    }
+
+    const onDialogYesButtonClicked = async () => {
+        const projectName = state.projectToDelete?.name;
+        const projectId = state.projectToDelete?.id;
+
+        let projectDeleted = false;
+
+        try {
+            const deletedProjectResult = await httpDelete(`api/project/${projectId}`);
+
+            projectDeleted = deletedProjectResult?.projectDeleted;
+
+            if (projectDeleted) {
+                props.showSnackbarMessage(`The project \"${projectName}\" (id: ${projectId}) was deleted successfully!`);
+            } else {
+                props.showSnackbarMessage(`Failed to delete the \"${projectName}\" project (id: ${projectId}).`);
+            }
+        } catch (error) {
+            props.showSnackbarMessage(`An error occurred while attempting to delete the project \"${projectName}\" project (id: ${projectId}).`);
+        } finally {
+            setState({
+                projectedDeletedSuccessfully: projectDeleted,
+                projectToDelete: null,
+                showDeleteProjectWarningDialog: false
+            });
+        }
+    }
+
+    const onDialogNoButtonClicked = (event) => {
+        setState({
+            showDeleteProjectWarningDialog: false
         });
     }
 
@@ -147,42 +207,44 @@ const ProjectsComponent = (props) => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography
-                                                color="common.white"
-                                                variant="h6"
-                                            >
-                                                Project Name
-                                            </Typography>
+                                            <Typography color="common.white" variant="h6">Project Name</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography
-                                                color="common.white"
-                                                variant="h6"
-                                            >
-                                                Description
-                                            </Typography>
+                                            <Typography color="common.white" variant="h6">Description</Typography>
+                                        </TableCell>
+                                        <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                            <Typography color="common.white" variant="h6">Action</Typography>
                                         </TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {state.teamProjects.map((teamProject, index) => (
-                                        <TableRow
-                                            key={`project-${index}`}
-                                            sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                            style={{ backgroundColor: theme.palette.common.white }}
-                                        >
-                                            <TableCell component="th" scope="row">
-                                                <Typography>
-                                                    {teamProject.name}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell component="th" scope="row">
-                                                <Typography>
-                                                    {teamProject.description}
-                                                </Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {
+                                        state.teamProjects.map((teamProject, index) => (
+                                            <TableRow
+                                                key={`project-${index}`}
+                                                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                                                style={{ backgroundColor: theme.palette.common.white }}
+                                            >
+                                                <TableCell component="th" scope="row">
+                                                    <Typography>{teamProject.name}</Typography>
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    <Typography>{teamProject.description}</Typography>
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    <Button
+                                                        aria-label="Delete Project"
+                                                        onClick={onDeleteProjectButtonClicked}
+                                                        data-project-id-to-delete={teamProject.id}
+                                                        variant="outlined"
+                                                        className="icon-only-button"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    }
                                 </TableBody>
                             </Table>
                         </TableContainer>
@@ -233,6 +295,13 @@ const ProjectsComponent = (props) => {
                     </div>
                 </CardContent>
             </Card>
+            <YesNoDialog
+                openDialog={state.showDeleteProjectWarningDialog}
+                title="Delete Project Confirmation"
+                content={`Are you sure you want to delete the project\"${state.projectToDelete?.name}\" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
+                onYesClicked={onDialogYesButtonClicked}
+                onNoClicked={onDialogNoButtonClicked}
+            />
         </ThemeProvider>
     );
 };
