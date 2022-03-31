@@ -130,6 +130,31 @@ namespace SprintCompassBackendUnitTests
         }
 
         [Fact]
+        public async void TestDeleteProject()
+        {
+            int teamId = 1;
+
+            ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
+
+            List<Project> teamProjectListBeforeDelete = await projectDao.GetProjectsByTeamId(teamId);
+
+            if (teamProjectListBeforeDelete.Count > 0)
+            {
+                int projectIdToDelete = teamProjectListBeforeDelete.Last().Id;
+                bool projectDeleted = await projectDao.DeleteProject(projectIdToDelete);
+
+                Assert.True(projectDeleted);
+
+                List<Project> teamProjectListAfterDelete = await projectDao.GetProjectsByTeamId(teamId);
+                Assert.True(teamProjectListAfterDelete.Count == teamProjectListBeforeDelete.Count - 1);
+
+                return;
+            }
+
+            throw new Exception("The project list is empty! Test cannot be run.");
+        }
+
+        [Fact]
         public async void TestGetProductBacklog()
         {
             int projectId = 1;
