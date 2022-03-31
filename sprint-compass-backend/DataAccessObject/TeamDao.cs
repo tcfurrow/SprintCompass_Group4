@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace SprintCompassBackend.DataAccessObject
 {
     public class TeamDao
@@ -63,9 +65,9 @@ namespace SprintCompassBackend.DataAccessObject
             return teamList;
         }
 
-        public async Task<Team> GetTeamById(int teamId)
+        public async Task<Team?> GetTeamById(int teamId)
         {
-            Team team = null;
+            Team? team = null;
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
             try

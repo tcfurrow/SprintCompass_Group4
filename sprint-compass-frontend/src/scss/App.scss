@@ -19,7 +19,7 @@ body, html {
 .MuiCardContent-root {
     & button {
         &:not(.icon-only-button) {
-            & > svg {
+            & > svg:not(.MuiSvgIcon-root) {
                 margin-right: 0.5em;
             }
         }
@@ -131,11 +131,16 @@ body, html {
     }
 }
 
+.flex-gap {
+    display: flex;
+    gap: 1em;
+}
+
 @media only screen and (min-width: 768px) {
     .grid {
         &__two-col {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 4fr 1fr;
             grid-gap: 8vh;
         }
 

@@ -11,12 +11,11 @@ import {
 } from "@mui/material";
 import { useEffect, useReducer } from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { httpGet } from "../utils/ApiUtilities";
+import { httpGet, httpInsert } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../scss/App.scss";
-import { httpInsert } from "../utils/ApiUtilities";
 
 const AddProjectComponent = (props) => {
     const initialState = {

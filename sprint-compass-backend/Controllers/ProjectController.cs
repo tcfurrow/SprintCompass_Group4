@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using SprintCompassBackend.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -74,6 +75,53 @@ namespace SprintCompassBackend.Controllers
             {
                 Error = project is null,
                 AddedProject = project
+            };
+        }
+
+        [HttpPut("{projectId}")]
+        [Produces("application/json")]
+        public async Task<object?> UpdateProject
+        (
+            int projectId,
+            [FromBody]
+            JsonElement requestBodyJson
+        )
+        {
+            bool projectUpdated = false;
+            bool hasJsonBody = requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement updateInformation);
+
+            if (hasJsonBody)
+            {
+                _ = updateInformation.TryGetProperty("projectName", out JsonElement projectNameJson);
+                _ = updateInformation.TryGetProperty("projectDescription", out JsonElement projectDescriptionJson);
+                _ = updateInformation.TryGetProperty("projectStartDate", out JsonElement projectStartDateJson);
+
+                ProjectDao projectDao = new ProjectDao(_dbConnCtx, _logger);
+                Project? projectToUpdate = await projectDao.GetProjectById(projectId);
+
+                if (projectToUpdate is not null)
+                {
+                    projectToUpdate.Name = projectNameJson.GetString() ?? projectToUpdate.Name;
+                    projectToUpdate.Description = projectDescriptionJson.GetString() ?? projectToUpdate.Description;
+
+                    DateTime startDate;
+
+                    if (!projectStartDateJson.TryGetDateTime(out startDate))
+                    {
+                        startDate = default;
+                    }
+
+                    projectToUpdate.StartDate = startDate == default
+                        ? projectToUpdate.StartDate
+                        : startDate;
+                    
+                    projectUpdated = await projectDao.UpdateProject(projectToUpdate);
+                }
+            }
+
+            return new
+            {
+                ProjectUpdated = projectUpdated
             };
         }
 

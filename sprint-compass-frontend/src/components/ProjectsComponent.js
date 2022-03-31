@@ -1,6 +1,7 @@
 // File Name:    ProjectsComponent.js
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
+import "../scss/App.scss";
 import {
     Autocomplete,
     Button,
@@ -21,14 +22,14 @@ import {
     Typography
 } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
-import { faArrowLeft, faPlus, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faEdit, faPlus, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ThemeProvider } from "@mui/material/styles";
 import YesNoDialog from "./ui/YesNoDialog";
 import { httpDelete, httpGet } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { useNavigate } from "react-router-dom";
-import "../scss/App.scss";
+import moment from "moment";
 
 const ProjectsComponent = (props) => {
     const navigate = useNavigate();
@@ -112,6 +113,17 @@ const ProjectsComponent = (props) => {
         setState({
             selectedTeamId: -1,
             teamProjects: []
+        });
+    }
+
+    const onEditProjectButtonClicked = (event) => {
+        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-update"));
+        const projectToUpdate = state.teamProjects.find(project => project.id === projectId);
+
+        navigate("/edit_project", {
+            state: {
+                project: projectToUpdate
+            }
         });
     }
 
@@ -213,6 +225,9 @@ const ProjectsComponent = (props) => {
                                             <Typography color="common.white" variant="h6">Description</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                            <Typography color="common.white" variant="h6">Start Date</Typography>
+                                        </TableCell>
+                                        <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                             <Typography color="common.white" variant="h6">Action</Typography>
                                         </TableCell>
                                     </TableRow>
@@ -232,15 +247,29 @@ const ProjectsComponent = (props) => {
                                                     <Typography>{teamProject.description}</Typography>
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
-                                                    <Button
-                                                        aria-label="Delete Project"
-                                                        onClick={onDeleteProjectButtonClicked}
-                                                        data-project-id-to-delete={teamProject.id}
-                                                        variant="outlined"
-                                                        className="icon-only-button"
-                                                    >
-                                                        <FontAwesomeIcon icon={faTrash} />
-                                                    </Button>
+                                                    <Typography>{teamProject.startDate === null ? "N/A" : moment(teamProject.startDate).format("DD/MM/YYYY")}</Typography>
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    <div className="flex-gap">
+                                                        <Button
+                                                            aria-label="Edit Project"
+                                                            onClick={onEditProjectButtonClicked}
+                                                            data-project-id-to-update={teamProject.id}
+                                                            variant="outlined"
+                                                            className="icon-only-button"
+                                                        >
+                                                            <FontAwesomeIcon icon={faEdit} />
+                                                        </Button>
+                                                        <Button
+                                                            aria-label="Delete Project"
+                                                            onClick={onDeleteProjectButtonClicked}
+                                                            data-project-id-to-delete={teamProject.id}
+                                                            variant="outlined"
+                                                            className="icon-only-button"
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))

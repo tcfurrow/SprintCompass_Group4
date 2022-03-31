@@ -118,6 +118,54 @@ namespace SprintCompassBackend.DataAccessObject
             return projectDeleted;
         }
 
+        public async Task<Project?> GetProjectById(int projectId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            Project? project = null;
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name, description, team_id, start_date FROM project WHERE id = ?projectId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
+
+                await mySqlSelectCmd.ExecuteNonQueryAsync();
+
+                DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
+
+                if (resultReader.HasRows)
+                {
+                    TeamDao teamDao = new TeamDao(_dbConnCtx);
+
+                    await resultReader.ReadAsync();
+
+                    string projectName = resultReader.GetString(1);
+                    string projectDescription = resultReader.GetString(2);
+                    int projectTeamOwnerId = resultReader.GetInt32(3);
+                    DateTime? startDate = null;
+                    List<ProjectTask> productBacklog = await GetProductBacklog(projectId);
+
+                    // Get the start date if it is not null
+                    if (!await resultReader.IsDBNullAsync(4))
+                    {
+                        startDate = resultReader.GetDateTime(4);
+                    }
+
+                    Team? projectTeamOwner = await teamDao.GetTeamById(projectTeamOwnerId);
+
+                    project = new Project(projectId, projectName, projectDescription, projectTeamOwner, startDate, productBacklog);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return project;
+        }
+
         public async Task<List<Project>> GetProjectsByTeamId(int teamId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
