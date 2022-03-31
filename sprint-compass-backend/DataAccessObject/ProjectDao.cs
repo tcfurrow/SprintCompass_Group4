@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 #nullable enable
 
@@ -14,14 +16,21 @@ namespace SprintCompassBackend.DataAccessObject
     public class ProjectDao
     {
         private DatabaseConnectionContext _dbConnCtx;
+        private ILogger? _logger;
 
-        public ProjectDao(DatabaseConnectionContext dbConnCtx)
+        public ProjectDao(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
         {
             _dbConnCtx = dbConnCtx;
+            _logger = logger;
         }
 
         public async Task<Project?> AddProject(string name, string description, int teamId)
         {
+            if (teamId == -1)
+            {
+                return null;
+            }
+
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
             TeamDao teamDao = new TeamDao(_dbConnCtx);
@@ -47,9 +56,9 @@ namespace SprintCompassBackend.DataAccessObject
                         addedProject = teamProjects.LastOrDefault();
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // TODO: Log exception
+                    _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
                 }
             }
 
@@ -77,13 +86,36 @@ namespace SprintCompassBackend.DataAccessObject
                     int rowsUpdated = await mySqlUpdateCmd.ExecuteNonQueryAsync();
                     projectUpdated = rowsUpdated > 0;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // TODO: Log exception
+                    _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
                 }
             }
 
             return projectUpdated;
+        }
+
+        public async Task<bool> DeleteProject(int projectId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+            bool projectDeleted = false;
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlUpdateCmd = new MySqlCommand("DELETE FROM project WHERE id = ?projectId;", dbConn);
+                mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = project.Id;
+
+                int numberOfRowsDeleted = await mySqlUpdateCmd.ExecuteNonQueryAsync();
+                projectDeleted = numberOfRowsDeleted > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return projectDeleted;
         }
 
         public async Task<List<Project>> GetProjectsByTeamId(int teamId)
@@ -131,7 +163,7 @@ namespace SprintCompassBackend.DataAccessObject
             }
             catch (Exception ex)
             {
-                // TODO: Log exception
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
             return teamProjectList;
@@ -163,9 +195,9 @@ namespace SprintCompassBackend.DataAccessObject
                     addedProjectTask = projectProductBacklog.LastOrDefault();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Log exception
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
             return addedProjectTask;
@@ -201,9 +233,9 @@ namespace SprintCompassBackend.DataAccessObject
                     projectTasks.Add(new ProjectTask(taskId, title, description, priority, relativeEstimate, cost));
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Log exception
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
             return projectTasks;
