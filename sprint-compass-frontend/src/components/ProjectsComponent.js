@@ -208,9 +208,7 @@ const ProjectsComponent = (props) => {
                     <FontAwesomeIcon icon={faArrowLeft} />
                     Select Different Team
                 </Button>
-                <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">
-                    Group Name: {state.teamProjects?.length > 0 ? state.teamProjects[0].team.name : "Resolving..."}
-                </Typography>
+                <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">{state.teamProjects[0].team.name}</Typography>
                 <div className="grid__two-col">
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Projects</Typography>
