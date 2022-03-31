@@ -298,7 +298,7 @@ const ProjectsComponent = (props) => {
             <YesNoDialog
                 openDialog={state.showDeleteProjectWarningDialog}
                 title="Delete Project Confirmation"
-                content={`Are you sure you want to delete the project\"${state.projectToDelete?.name}\" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
+                content={`Are you sure you want to delete the project \"${state.projectToDelete?.name}\" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
                 onYesClicked={onDialogYesButtonClicked}
                 onNoClicked={onDialogNoButtonClicked}
             />
