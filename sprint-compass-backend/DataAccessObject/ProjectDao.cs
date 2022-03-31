@@ -105,7 +105,7 @@ namespace SprintCompassBackend.DataAccessObject
                 await dbConn.OpenAsync();
 
                 using MySqlCommand mySqlUpdateCmd = new MySqlCommand("DELETE FROM project WHERE id = ?projectId;", dbConn);
-                mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = project.Id;
+                mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
 
                 int numberOfRowsDeleted = await mySqlUpdateCmd.ExecuteNonQueryAsync();
                 projectDeleted = numberOfRowsDeleted > 0;
