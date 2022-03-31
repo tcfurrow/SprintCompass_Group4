@@ -138,12 +138,12 @@ const ProjectsComponent = (props) => {
             projectDeleted = deletedProjectResult?.projectDeleted;
 
             if (projectDeleted) {
-                props.showSnackbarMessage(`The project \"${projectName}\" (id: ${projectId}) was deleted successfully!`);
+                props.showSnackbarMessage(`The project "${projectName}" (id: ${projectId}) was deleted successfully!`);
             } else {
-                props.showSnackbarMessage(`Failed to delete the \"${projectName}\" project (id: ${projectId}).`);
+                props.showSnackbarMessage(`Failed to delete the "${projectName}" project (id: ${projectId}).`);
             }
         } catch (error) {
-            props.showSnackbarMessage(`An error occurred while attempting to delete the project \"${projectName}\" project (id: ${projectId}).`);
+            props.showSnackbarMessage(`An error occurred while attempting to delete the project "${projectName}" project (id: ${projectId}).`);
         } finally {
             setState({
                 projectedDeletedSuccessfully: projectDeleted,
@@ -298,7 +298,7 @@ const ProjectsComponent = (props) => {
             <YesNoDialog
                 openDialog={state.showDeleteProjectWarningDialog}
                 title="Delete Project Confirmation"
-                content={`Are you sure you want to delete the project \"${state.projectToDelete?.name}\" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
+                content={`Are you sure you want to delete the project "${state.projectToDelete?.name}" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
                 onYesClicked={onDialogYesButtonClicked}
                 onNoClicked={onDialogNoButtonClicked}
             />
