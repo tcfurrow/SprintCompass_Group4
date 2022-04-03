@@ -47,17 +47,13 @@ namespace SprintCompassBackend.Controllers
             ProjectDao projectDao = new ProjectDao(_dbConnCtx, _logger);
             Project? project = null;
 
-            JsonElement projectNameJson;
-            JsonElement projectDescriptionJson;
-            JsonElement teamIdJson;
-
             // TODO: Maybe validate the data from the client (such as preventing duplicate project names from existing
             //       for a team.
             if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement projectInformation))
             {
-                _ = projectInformation.TryGetProperty("projectName", out projectNameJson);
-                _ = projectInformation.TryGetProperty("projectDescription", out projectDescriptionJson);
-                _ = projectInformation.TryGetProperty("teamId", out teamIdJson);
+                _ = projectInformation.TryGetProperty("projectName", out JsonElement projectNameJson);
+                _ = projectInformation.TryGetProperty("projectDescription", out JsonElement projectDescriptionJson);
+                _ = projectInformation.TryGetProperty("teamId", out JsonElement teamIdJson);
 
                 string projectName = (projectNameJson.GetString() ?? string.Empty).Trim();
                 string projectDescription = (projectDescriptionJson.GetString() ?? string.Empty).Trim();

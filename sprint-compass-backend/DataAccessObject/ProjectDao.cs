@@ -35,7 +35,7 @@ namespace SprintCompassBackend.DataAccessObject
 
             TeamDao teamDao = new TeamDao(_dbConnCtx);
             Project? addedProject = null;
-            Team team = await teamDao.GetTeamById(teamId);
+            Team? team = await teamDao.GetTeamById(teamId);
 
             if (team is not null)
             {

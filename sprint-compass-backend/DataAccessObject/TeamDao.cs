@@ -1,9 +1,11 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Reflection;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -13,25 +15,89 @@ namespace SprintCompassBackend.DataAccessObject
     public class TeamDao
     {
         private DatabaseConnectionContext _dbConnCtx;
+        private ILogger? _logger;
 
-        public TeamDao(DatabaseConnectionContext dbConnCtx)
+        public TeamDao(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
         {
             _dbConnCtx = dbConnCtx;
+            _logger = logger;
         }
 
         public async Task<bool> AddTeam(string teamName)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(teamName))
+            {
+                return false;
+            }
+
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+            bool teamAdded = false;
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO team (name) VALUES (?teamName);", dbConn);
+                mySqlInsertCmd.Parameters.Add("?teamName", MySqlDbType.VarString).Value = teamName;
+
+                int totalRowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
+                teamAdded = totalRowsAdded == 1;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return teamAdded;
         }
 
-        public async Task<bool> AddMemberToTeam(int userId)
+        public async Task<bool> AddMemberToTeam(int teamId, int userId, Role role)
         {
-            throw new NotImplementedException();
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+            bool userAdded = false;
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO team_member_list (team_id, user_id, role_id) VALUES (?teamId, ?userId, ?roleId);", dbConn);
+                mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+                mySqlInsertCmd.Parameters.Add("?userId", MySqlDbType.Int32).Value = userId;
+                mySqlInsertCmd.Parameters.Add("?roleId", MySqlDbType.Int32).Value = role;
+
+                int totalRowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
+                userAdded = totalRowsAdded == 1;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return userAdded;
         }
 
-        public async Task<bool> RemoveMemberFromTeam(int userId)
+        public async Task<bool> RemoveMemberFromTeam(int teamId, int userId)
         {
-            throw new NotImplementedException();
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+            bool userRemoved = false;
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlInsertCmd = new MySqlCommand("DELETE FROM team_member_list WHERE team_id = ?teamId AND user_id = ?userId;", dbConn);
+                mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+                mySqlInsertCmd.Parameters.Add("?userId", MySqlDbType.Int32).Value = userId;
+
+                int totalRowsDeleted = await mySqlInsertCmd.ExecuteNonQueryAsync();
+                userRemoved = totalRowsDeleted >= 1;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return userRemoved;
         }
 
         public async Task<List<Team>> GetTeams()
@@ -57,9 +123,9 @@ namespace SprintCompassBackend.DataAccessObject
                     teamList.Add(new Team(teamId, teamName, teamMembers));
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Log exception
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
             return teamList;
@@ -94,9 +160,9 @@ namespace SprintCompassBackend.DataAccessObject
                     team = new Team(teamId, teamName, teamMembers);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Log exception
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
             return team;
@@ -131,7 +197,7 @@ namespace SprintCompassBackend.DataAccessObject
             }
             catch (Exception ex)
             {
-                // TODO: Log exception
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
             return teamMemberList;
