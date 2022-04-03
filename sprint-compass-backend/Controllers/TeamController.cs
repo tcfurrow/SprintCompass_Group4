@@ -16,12 +16,14 @@ namespace SprintCompassBackend.Controllers
     public class TeamController : ControllerBase
     {
         private readonly DatabaseConnectionContext _dbConnCtx;
-        private readonly ILogger? _logger;
+        private readonly ILogger<TeamController>? _logger;
 
-        public TeamController(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
+        public TeamController(DatabaseConnectionContext dbConnCtx, ILogger<TeamController>? logger = null)
         {
             _dbConnCtx = dbConnCtx;
-            _logger =
+            _logger = logger;
+
+            _logger?.LogInformation("A TeamController instance has been created!");
         }
 
         [HttpGet]

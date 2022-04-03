@@ -22,6 +22,7 @@ namespace SprintCompassBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging();
             services.AddCors(options => options.AddPolicy(CorsPolicyName, builder => builder.WithOrigins(ClientDevelopmentEndpoint).AllowAnyHeader().AllowAnyMethod()));
             services.AddControllers();
             services.Add(new ServiceDescriptor(typeof(DatabaseConnectionContext), new DatabaseConnectionContext(Configuration.GetConnectionString(ConnectionStringName))));
