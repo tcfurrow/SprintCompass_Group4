@@ -17,9 +17,9 @@ namespace SprintCompassBackend.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly DatabaseConnectionContext _dbConnCtx;
-        private readonly ILogger? _logger;
+        private readonly ILogger<ProjectController>? _logger;
 
-        public ProjectController(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
+        public ProjectController(DatabaseConnectionContext dbConnCtx, ILogger<ProjectController>? logger = null)
         {
             _dbConnCtx = dbConnCtx;
             _logger = logger;
