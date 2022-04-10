@@ -17,9 +17,9 @@ namespace SprintCompassBackend.Controllers
     public class ProjectController : ControllerBase
     {
         private readonly DatabaseConnectionContext _dbConnCtx;
-        private readonly ILogger<ProjectController>? _logger;
+        private readonly ILogger? _logger;
 
-        public ProjectController(DatabaseConnectionContext dbConnCtx, ILogger<ProjectController>? logger = null)
+        public ProjectController(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
         {
             _dbConnCtx = dbConnCtx;
             _logger = logger;
@@ -110,7 +110,7 @@ namespace SprintCompassBackend.Controllers
                     projectToUpdate.StartDate = startDate == default
                         ? projectToUpdate.StartDate
                         : startDate;
-                    
+
                     projectUpdated = await projectDao.UpdateProject(projectToUpdate);
                 }
             }

@@ -4,23 +4,16 @@ using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
 using System.Data.Common;
-using Microsoft.Extensions.Logging;
-
-#nullable enable
 
 namespace SprintCompassBackend.DataAccessObject
 {
     public class RoleDao
     {
         private DatabaseConnectionContext _dbConnCtx;
-        private ILogger? _logger;
 
-        public RoleDao(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
+        public RoleDao(DatabaseConnectionContext dbConnCtx)
         {
             _dbConnCtx = dbConnCtx;
-            _logger = logger;
-
-            _logger?.LogInformation("A RoleDao instance has been created!");
         }
 
         public async Task<List<string>> GetRoles()
@@ -45,9 +38,9 @@ namespace SprintCompassBackend.DataAccessObject
                     rolesList.Add(roleName);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+                // TODO: Log exception
             }
 
             return rolesList;

@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-#nullable enable
 
 namespace SprintCompassBackend.Controllers
 {
@@ -14,14 +11,10 @@ namespace SprintCompassBackend.Controllers
     public class RoleController : ControllerBase
     {
         private readonly DatabaseConnectionContext _dbConnCtx;
-        private readonly ILogger<RoleController>? _logger;
 
-        public RoleController(DatabaseConnectionContext dbConnCtx, ILogger<RoleController>? logger = null)
+        public RoleController(DatabaseConnectionContext dbConnCtx)
         {
             _dbConnCtx = dbConnCtx;
-            _logger = logger;
-
-            _logger?.LogInformation("A TeamController instance has been created!");
         }
 
         [HttpGet]

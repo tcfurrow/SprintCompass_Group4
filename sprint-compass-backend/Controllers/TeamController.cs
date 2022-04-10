@@ -16,15 +16,13 @@ namespace SprintCompassBackend.Controllers
     public class TeamController : ControllerBase
     {
         private readonly DatabaseConnectionContext _dbConnCtx;
-        private readonly ILogger<TeamController>? _logger;
+        private readonly ILogger? _logger;
 
-        public TeamController(DatabaseConnectionContext dbConnCtx, ILogger<TeamController>? logger = null)
+        public TeamController(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
         {
             _dbConnCtx = dbConnCtx;
             _logger = logger;
-
-            _logger?.LogInformation("A TeamController instance has been created!");
-        }
+        } 
 
         [HttpGet]
         [Produces("application/json")]
@@ -55,6 +53,44 @@ namespace SprintCompassBackend.Controllers
             return new
             {
                 TeamAdded = teamAdded
+            };
+        }
+
+        [HttpPost]
+        [Produces("application/json")]
+        public async Task<object?> AddTeamMember
+       (
+           [FromBody]
+            JsonElement requestBodyJson
+       )
+        {
+            TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
+            Team? teamMemberAdded = null;
+
+            // TODO: Maybe validate the data from the client (such as preventing duplicate project names from existing
+            //       for a team.
+            if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement projectInformation))
+            {
+                _ = projectInformation.TryGetProperty("firstName", out JsonElement firstNameJson);
+                _ = projectInformation.TryGetProperty("lastName", out JsonElement lastNameJson);
+                _ = projectInformation.TryGetProperty("roleId", out JsonElement roleIdJson);
+
+                string firstName = (firstNameJson.GetString() ?? string.Empty).Trim();
+                string lastName = (lastNameJson.GetString() ?? string.Empty).Trim();
+                int roleId;
+
+                if (!roleIdJson.TryGetInt32(out roleId))
+                {
+                    roleId = -1;
+                }
+
+                teamMemberAdded = await teamDao.AddMemberToTeam(firstName, lastName, roleId);
+            }
+
+            return new
+            {
+                Error = teamMemberAdded is null,
+                AddedTeamMember = teamMemberAdded
             };
         }
     }
