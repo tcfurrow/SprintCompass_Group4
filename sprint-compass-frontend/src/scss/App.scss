@@ -109,7 +109,7 @@ body, html {
     }
 }
 
-.team-member-list, .team-project-table {
+.team-member-list, .team-project-table, .backlog-tasks-table {
     box-shadow: 0 0 1vw rgba(0, 0, 0, 0.1) !important;
     max-height: 100vh;
     overflow: auto;
@@ -134,6 +134,22 @@ body, html {
 .flex-gap {
     display: flex;
     gap: 1em;
+}
+
+.modal {
+    &__container {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__content {
+        background-color: #fff;
+        padding: 32px;
+        align-items: center;
+        display: grid;
+        justify-content: center;
+    }
 }
 
 @media only screen and (min-width: 768px) {
