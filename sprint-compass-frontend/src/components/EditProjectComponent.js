@@ -13,21 +13,24 @@ import { useReducer } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { httpUpdate } from "../utils/ApiUtilities";
 import theme from "../theme";
-import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import { faUpload, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../scss/App.scss";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate} from "react-router-dom";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 
 const EditProjectComponent = (props) => {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const initialState = {
         projectName: location?.state?.project?.name ?? "",
         projectDescription: location?.state?.project?.description ?? "",
-        projectStartDate: location?.state?.project?.startDate ?? null
+        projectStartDate: location?.state?.project?.startDate ?? null,
+        selectedTeamId: -1,
+        teamProjects: [],
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -44,6 +47,10 @@ const EditProjectComponent = (props) => {
     const onProjectStartDateValueChanged = (selectedDate) => {
         setState({ projectStartDate: selectedDate });
     }
+    const onBackButtonClicked = () => {
+        navigate("/projects");
+    }
+    
 
     const onUpdateProjectButtonClicked = async () => {
         try {
@@ -68,8 +75,13 @@ const EditProjectComponent = (props) => {
     }
 
     return (
+        <div>
         <ThemeProvider theme={theme}>
-            <Card>
+            <Card>            
+                <Button variant="contained" onClick={onBackButtonClicked} className="margin-bottom__small">
+                    <FontAwesomeIcon icon={faArrowLeft} />
+                    Back
+                </Button>
                 <CardHeader
                     title={
                         location?.state?.project != null
@@ -129,6 +141,7 @@ const EditProjectComponent = (props) => {
                 </CardContent>
             </Card>
         </ThemeProvider>
+        </div>
     );
 }
 

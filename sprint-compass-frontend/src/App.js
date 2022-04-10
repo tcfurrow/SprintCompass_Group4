@@ -26,6 +26,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { faCompass } from "@fortawesome/free-regular-svg-icons";
 import theme from "./theme";
 import EditProjectComponent from "./components/EditProjectComponent";
+import AddTeamMember from "./components/AddTeamMember";
 
 function App() {
     const initialState = {
@@ -101,6 +102,7 @@ function App() {
                 <Route path="/projects" element={<ProjectsComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/add_project" element={<AddProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/edit_project" element={<EditProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
+                <Route path="/add_team_member" element={<AddTeamMember showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/backlog" element={<ProductBacklogComponent showSnackbarMessage={showSnackbarMessage} />} />
             </Routes>
             <Snackbar

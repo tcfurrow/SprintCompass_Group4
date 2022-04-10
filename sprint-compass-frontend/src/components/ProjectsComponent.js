@@ -127,6 +127,17 @@ const ProjectsComponent = (props) => {
         });
     }
 
+    const onAddTeamMemberButtonClicked = (event) => {
+        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-update"));
+        const projectToUpdate = state.teamProjects.find(project => project.id === projectId);
+
+        navigate("/add_team_member", {
+            state: {
+                project: projectToUpdate
+            }
+        });
+    }
+
     const onDeleteProjectButtonClicked = (event) => {
         // TODO: We should probably do data validation here to make sure that the project id is indeed an integer
         const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-delete"));
@@ -173,10 +184,6 @@ const ProjectsComponent = (props) => {
 
     const onAddProjectButtonClicked = () => {
         navigate("/add_project");
-    }
-
-    const onAddTeamMemberButtonClicked = () => {
-        navigate("/add_team_member");
     }
 
     const renderSelectTeamPage = () => {
@@ -267,6 +274,7 @@ const ProjectsComponent = (props) => {
                                                         >
                                                             <FontAwesomeIcon icon={faTrash} />
                                                         </Button>
+        
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -283,8 +291,11 @@ const ProjectsComponent = (props) => {
                         </div>
                     </div>
                     <div>
+                        
                         <Typography variant="h6" className="margin-bottom__small">Team Members</Typography>
                         <List className="team-member-list margin-bottom__small">
+                                                      
+                            {/* //state.teamProjects.map((teamProject, index) => ( */}
                             <ul>
                                 {
                                     state.teamProjects[0].team.members.map((teamMember, index) => (
@@ -294,13 +305,21 @@ const ProjectsComponent = (props) => {
                                         </ListItem>
                                     ))
                                 }
-                            </ul>
+                            </ul> 
+                           
+
                         </List>
                         <div className="action-buttons-container">
-                            <Button variant="outlined" onClick={onAddTeamMemberButtonClicked}>
+                            
+                        
+                            <Button variant="outlined" onClick={onAddTeamMemberButtonClicked}
+                            //data-project-id-to-update={teamProject.id}
+                            >
                                 <FontAwesomeIcon icon={faUserPlus} />
+                                
                                 Add Team Member
                             </Button>
+                        {/* )) */}
                         </div>
                     </div>
                 </div>
