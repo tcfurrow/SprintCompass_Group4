@@ -8,6 +8,9 @@ import {
     CardContent,
     CardHeader,
     TextField,
+    Modal,
+    Box,
+    Typography
 } from "@mui/material";
 import { useEffect, useReducer } from "react";
 import { ThemeProvider } from "@mui/material/styles";

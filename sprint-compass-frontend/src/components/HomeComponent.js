@@ -3,7 +3,7 @@
 
 import React from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { Card, CardHeader } from "@mui/material";
+import { Card, CardHeader, Modal, Typography, Box } from "@mui/material";
 import theme from "../theme";
 import "../scss/App.scss";
 

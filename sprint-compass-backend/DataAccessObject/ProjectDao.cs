@@ -26,14 +26,14 @@ namespace SprintCompassBackend.DataAccessObject
 
         public async Task<Project?> AddProject(string name, string description, int teamId)
         {
-            if (teamId == -1)
+            if (teamId < 0)
             {
                 return null;
             }
 
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
-            TeamDao teamDao = new TeamDao(_dbConnCtx);
+            TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
             Project? addedProject = null;
             Team? team = await teamDao.GetTeamById(teamId);
 
@@ -104,10 +104,10 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlUpdateCmd = new MySqlCommand("DELETE FROM project WHERE id = ?projectId;", dbConn);
-                mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
+                using MySqlCommand mySqlDeleteCmd = new MySqlCommand("DELETE FROM project WHERE id = ?projectId;", dbConn);
+                mySqlDeleteCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
 
-                int numberOfRowsDeleted = await mySqlUpdateCmd.ExecuteNonQueryAsync();
+                int numberOfRowsDeleted = await mySqlDeleteCmd.ExecuteNonQueryAsync();
                 projectDeleted = numberOfRowsDeleted > 0;
             }
             catch (Exception ex)
@@ -137,7 +137,7 @@ namespace SprintCompassBackend.DataAccessObject
 
                 if (resultReader.HasRows)
                 {
-                    TeamDao teamDao = new TeamDao(_dbConnCtx);
+                    TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
 
                     await resultReader.ReadAsync();
 
@@ -202,7 +202,7 @@ namespace SprintCompassBackend.DataAccessObject
 
                     if (projectTeamOwner is null)
                     {
-                        TeamDao teamDao = new TeamDao(_dbConnCtx);
+                        TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
                         projectTeamOwner = await teamDao.GetTeamById(projectTeamOwnerId);
                     }
 

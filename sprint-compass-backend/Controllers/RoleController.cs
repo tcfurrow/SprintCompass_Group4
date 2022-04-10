@@ -5,8 +5,6 @@ using SprintCompassBackend.DataAccessObject;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-#nullable enable
-
 namespace SprintCompassBackend.Controllers
 {
     [Route("api/[controller]")]
@@ -21,14 +19,14 @@ namespace SprintCompassBackend.Controllers
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A TeamController instance has been created!");
+            _logger?.LogInformation("A {0} instance has been created!", "TeamController");
         }
 
         [HttpGet]
         [Produces("application/json")]
         public async Task<List<string>> GetRoles()
         {
-            RoleDao roleDao = new RoleDao(_dbConnCtx);
+            RoleDao roleDao = new RoleDao(_dbConnCtx, _logger);
             return await roleDao.GetRoles();
         }
     }

@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import ProductBacklogComponent from "./components/ProductBacklogComponent";
 import ProjectsComponent from "./components/ProjectsComponent";
+import ViewSprintsComponent from "./components/ViewSprintsComponent";
 import { ThemeProvider } from "@mui/material/styles";
 import { faCompass } from "@fortawesome/free-regular-svg-icons";
 import theme from "./theme";
@@ -102,6 +103,7 @@ function App() {
                 <Route path="/add_project" element={<AddProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/edit_project" element={<EditProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/backlog" element={<ProductBacklogComponent showSnackbarMessage={showSnackbarMessage} />} />
+                <Route path="/view_sprints" element={<ViewSprintsComponent showSnackbarMessage={showSnackbarMessage} />} />
             </Routes>
             <Snackbar
                 open={state.showSnackbar}

@@ -22,7 +22,7 @@ import {
     Typography
 } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
-import { faArrowLeft, faEdit, faPlus, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ThemeProvider } from "@mui/material/styles";
 import YesNoDialog from "./ui/YesNoDialog";
@@ -113,6 +113,17 @@ const ProjectsComponent = (props) => {
         setState({
             selectedTeamId: -1,
             teamProjects: []
+        });
+    }
+
+    const onViewProjectSprintsButtonClicked = (event) => {
+        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id"));
+        const project = state.teamProjects.find(project => project.id === projectId);
+
+        navigate("/view_sprints", {
+            state: {
+                project: project
+            }
         });
     }
 
@@ -209,10 +220,10 @@ const ProjectsComponent = (props) => {
                     Select Different Team
                 </Button>
                 <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">{state.teamProjects[0].team.name}</Typography>
-                <div className="grid__two-col">
+                <div className="grid__two-col-t1">
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Projects</Typography>
-                        <TableContainer component={Paper} style={{ maxHeight: 300 }} className="team-project-table margin-bottom__small">
+                        <TableContainer component={Paper} style={{ maxHeight: 300 }} className="team-project-table subtle-shadow margin-bottom__small">
                             <Table aria-label="Current Team's Projects" stickyHeader>
                                 <TableHead>
                                     <TableRow>
@@ -250,7 +261,18 @@ const ProjectsComponent = (props) => {
                                                 <TableCell component="th" scope="row">
                                                     <div className="flex-gap">
                                                         <Button
+                                                            aria-label="View Project's Sprints"
+                                                            title="View Project's Sprints"
+                                                            onClick={onViewProjectSprintsButtonClicked}
+                                                            data-project-id={teamProject.id}
+                                                            variant="outlined"
+                                                            className="icon-only-button"
+                                                        >
+                                                            <FontAwesomeIcon icon={faRunning} />
+                                                        </Button>
+                                                        <Button
                                                             aria-label="Edit Project"
+                                                            title="Edit Project"
                                                             onClick={onEditProjectButtonClicked}
                                                             data-project-id-to-update={teamProject.id}
                                                             variant="outlined"
@@ -260,6 +282,7 @@ const ProjectsComponent = (props) => {
                                                         </Button>
                                                         <Button
                                                             aria-label="Delete Project"
+                                                            title="Delete Project"
                                                             onClick={onDeleteProjectButtonClicked}
                                                             data-project-id-to-delete={teamProject.id}
                                                             variant="outlined"
@@ -276,7 +299,7 @@ const ProjectsComponent = (props) => {
                             </Table>
                         </TableContainer>
                         <div className="action-buttons-container">
-                            <Button variant="outlined" onClick={onAddProjectButtonClicked}>
+                            <Button variant="outlined" onClick={onAddProjectButtonClicked} className="auto-width-big-screens">
                                 <FontAwesomeIcon icon={faPlus} />
                                 Add Project
                             </Button>
@@ -284,7 +307,7 @@ const ProjectsComponent = (props) => {
                     </div>
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Team Members</Typography>
-                        <List className="team-member-list margin-bottom__small">
+                        <List className="team-member-list subtle-shadow margin-bottom__small">
                             <ul>
                                 {
                                     state.teamProjects[0].team.members.map((teamMember, index) => (

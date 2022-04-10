@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-#nullable enable
-
 namespace SprintCompassBackend.Controllers
 {
     [Route("api/[controller]")]
@@ -23,7 +21,7 @@ namespace SprintCompassBackend.Controllers
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A TeamController instance has been created!");
+            _logger?.LogInformation("A {0} instance has been created!", "TeamController");
         }
 
         [HttpGet]
