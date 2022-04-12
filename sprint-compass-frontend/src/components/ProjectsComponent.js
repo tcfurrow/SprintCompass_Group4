@@ -228,16 +228,16 @@ const ProjectsComponent = (props) => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Project Name</Typography>
+                                            <Typography color="common.white" variant="body1">Project Name</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Description</Typography>
+                                            <Typography color="common.white" variant="body1">Description</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Start Date</Typography>
+                                            <Typography color="common.white" variant="body1">Start Date</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Action</Typography>
+                                            <Typography color="common.white" variant="body1">Action</Typography>
                                         </TableCell>
                                     </TableRow>
                                 </TableHead>

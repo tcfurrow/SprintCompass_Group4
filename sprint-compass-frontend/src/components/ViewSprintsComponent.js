@@ -20,10 +20,13 @@ import {
     Typography
 } from "@mui/material";
 import { useEffect, useReducer } from "react";
+import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ThemeProvider } from "@mui/material/styles";
-import { httpDelete, httpGet, httpInsert } from "../utils/ApiUtilities";
+import { httpDelete, httpGet, httpInsert, httpUpdate } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { useLocation } from "react-router-dom";
+import ProjectTaskDetailsDialog from "./ui/ProjectTaskDetailsDialog";
 
 const ViewSprintsComponent = (props) => {
     const location = useLocation();
@@ -31,8 +34,10 @@ const ViewSprintsComponent = (props) => {
     const initialState = {
         sprints: [],
         selectedSprint: null,
+        selectedProjectTask: null,
         showCreateNewSprintDialog: false,
-        showDeleteSprintWarningDialog: false,
+        showProjectTaskDetailsDialog: false,
+        showDeleteSprintWarningDialog: false
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -55,6 +60,8 @@ const ViewSprintsComponent = (props) => {
             props.showSnackbarMessage(`Fetching sprints for project ${location.state.project.name} (id: ${location.state.project.id})...`);
             
             const sprints = await httpGet(`api/sprint/${location.state.project.id}`);
+
+            console.log(sprints);
 
             if (sprints !== null) {
                 setState({ sprints: sprints });
@@ -102,8 +109,22 @@ const ViewSprintsComponent = (props) => {
         }
     }
 
-    const onCreateNewTaskButtonClicked = () => {
+    const onViewProjectTaskButtonClicked = (event) => {
+        if (state.selectedSprint === null) {
+            return;
+        }
 
+        const projectTaskIndex = parseInt(event.currentTarget.getAttribute("data-project-task-index"));
+        const selectedProjectTask = state.selectedSprint.userStories[projectTaskIndex];
+
+        setState({
+            selectedProjectTask: selectedProjectTask,
+            showProjectTaskDetailsDialog: true
+        });
+    }
+
+    const onCreateNewTaskButtonClicked = (event) => {
+        const projectTaskIndex = parseInt(event.currentTarget.getAttribute("data-sprint-index"));
     }
 
     const onDeleteSprintButtonClicked = () => {
@@ -131,6 +152,134 @@ const ViewSprintsComponent = (props) => {
             }
         } catch (error) {
             props.showSnackbarMessage(`An error occurred while attempting to delete the sprint "${sprintToDelete.name}" project (id: ${sprintToDelete.id}).`);
+        }
+    }
+
+    // NOTE: This button is defined in the ProjectTaskDetailsDialog component
+    const createNewSubtask = async (subtaskTitle) => {
+        if (state.selectedProjectTask === null) {
+            return;
+        }
+
+        try {
+            props.showSnackbarMessage("Creating new subtask...");
+
+            const subtask = {
+                userStoryId: state.selectedProjectTask.id,
+                subtaskTitle: subtaskTitle
+            };
+
+            const createSubtaskResponse = await httpInsert(`api/projectsubtask`, subtask);
+
+            if (createSubtaskResponse.subtaskCreated) {
+                props.showSnackbarMessage(`Subtask "${subtaskTitle}" has been created successfully!`);
+
+                const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
+                
+                if (sprintIndex !== -1) {
+                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedProjectTask.id);
+                    
+                    if (projectTaskIndex !== -1) {
+                        let newSubtaskList = state.sprints[sprintIndex].userStories[projectTaskIndex].subtasks;
+                        newSubtaskList.push(createSubtaskResponse.subtask);
+
+                        const updatedSprints = [ ...state.sprints ];
+                        updatedSprints[sprintIndex].userStories[projectTaskIndex].subtasks = newSubtaskList;
+
+                        setState({
+                            sprints: updatedSprints,
+                            selectedProjectTask: updatedSprints[sprintIndex].userStories[projectTaskIndex]
+                        });
+                    }
+                }
+            } else {
+                props.showSnackbarMessage(`Failed to create subtask "${subtaskTitle}" due to server-side issue.`);
+            }
+        } catch (error) {
+            props.showSnackbarMessage(`An error occurred while attempting to create the subtask "${subtaskTitle}".`);
+        }
+    }
+
+    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskStatus) => {
+        try {
+            props.showSnackbarMessage("Updating subtask status...");
+            
+            const subtask = {
+                title: subtaskTitle,
+                status: subtaskStatus
+            };
+
+            const updateSubtaskResponse = await httpUpdate(`api/projectsubtask/${subtaskId}`, subtask);
+
+            if (updateSubtaskResponse.subtaskUpdated) {
+                props.showSnackbarMessage(`Subtask "${subtaskTitle}" has been updated successfully!`);
+
+                const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
+                
+                if (sprintIndex !== -1) {
+                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedProjectTask.id);
+                    
+                    if (projectTaskIndex !== -1) {
+                        let subtaskList = state.sprints[sprintIndex].userStories[projectTaskIndex].subtasks;
+                        const subtaskIndex = subtaskList.findIndex(subtask => subtask.id === subtaskId);
+
+                        subtaskList[subtaskIndex] = updateSubtaskResponse.subtask;
+
+                        const updatedSprints = [ ...state.sprints ];
+                        updatedSprints[sprintIndex].userStories[projectTaskIndex].subtasks = subtaskList;
+
+                        setState({
+                            sprints: updatedSprints,
+                            selectedProjectTask: updatedSprints[sprintIndex].userStories[projectTaskIndex]
+                        });
+                    }
+                }
+            } else {
+                props.showSnackbarMessage(`Failed to update subtask "${subtaskTitle}" due to server-side issue.`);
+            }
+        } catch (error) {
+            props.showSnackbarMessage(`An error occurred while attempting to update the subtask "${subtaskTitle}".`);
+        }
+    }
+
+    const onDeleteSubtask = async (subtaskToDelete) => {
+        if (subtaskToDelete === null) {
+            return;
+        }
+
+        try {
+            props.showSnackbarMessage(`Deleting subtask "${subtaskToDelete.title}"...`);
+
+            const deleteSubtaskResponse = await httpDelete(`api/projectsubtask/${subtaskToDelete.id}`);
+
+            if (deleteSubtaskResponse?.subtaskDeleted) {
+                props.showSnackbarMessage(`Subtask "${subtaskToDelete.title}" has been deleted successfully!`);
+
+                const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
+                
+                if (sprintIndex !== -1) {
+                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedProjectTask.id);
+                    
+                    if (projectTaskIndex !== -1) {
+                        let subtaskList = state.sprints[sprintIndex].userStories[projectTaskIndex].subtasks;
+                        const subtaskIndex = subtaskList.findIndex(subtask => subtask.id === subtaskToDelete.id);
+
+                        subtaskList.splice(subtaskIndex, 1);
+
+                        const updatedSprints = [ ...state.sprints ];
+                        updatedSprints[sprintIndex].userStories[projectTaskIndex].subtasks = subtaskList;
+
+                        setState({
+                            sprints: updatedSprints,
+                            selectedProjectTask: updatedSprints[sprintIndex].userStories[projectTaskIndex]
+                        });
+                    }
+                }
+            } else {
+                props.showSnackbarMessage(`Failed to delete subtask "${subtaskToDelete.title}" due to server-side issue.`);
+            }
+        } catch (error) {
+            props.showSnackbarMessage(`An error occurred while attempting to delete the subtask "${subtaskToDelete.title}".`);
         }
     }
 
@@ -207,13 +356,16 @@ const ViewSprintsComponent = (props) => {
                                                 <TableHead>
                                                     <TableRow>
                                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                                            <Typography color="common.white" variant="h6">Priority</Typography>
+                                                            <Typography color="common.white" variant="body1">Priority</Typography>
                                                         </TableCell>
                                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                                            <Typography color="common.white" variant="h6">Title</Typography>
+                                                            <Typography color="common.white" variant="body1">Title</Typography>
                                                         </TableCell>
                                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                                            <Typography color="common.white" variant="h6">Description</Typography>
+                                                            <Typography color="common.white" variant="body1">Description</Typography>
+                                                        </TableCell>
+                                                        <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                                            <Typography color="common.white" variant="body1">Actions</Typography>
                                                         </TableCell>
                                                     </TableRow>
                                                 </TableHead>
@@ -240,6 +392,28 @@ const ViewSprintsComponent = (props) => {
                                                                         {userStory.description}
                                                                     </Typography>
                                                                 </TableCell>
+                                                                <TableCell component="th" scope="row">
+                                                                    <div className="flex-gap">
+                                                                        <Button
+                                                                            aria-label="View Project Task"
+                                                                            title="View Project Task"
+                                                                            data-project-task-index={index}
+                                                                            onClick={onViewProjectTaskButtonClicked}
+                                                                            variant="outlined"
+                                                                            className="icon-only-button"
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faEye} />
+                                                                        </Button>
+                                                                        <Button
+                                                                            aria-label="Delete Project"
+                                                                            title="Delete Project"
+                                                                            variant="outlined"
+                                                                            className="icon-only-button"
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faTrash} />
+                                                                        </Button>
+                                                                    </div>
+                                                                </TableCell>
                                                             </TableRow>
                                                         ))
                                                     }
@@ -265,6 +439,14 @@ const ViewSprintsComponent = (props) => {
                 openDialog={state.showCreateNewSprintDialog}
                 onCreateNewSprintButtonClicked={onCreateNewSprintDialogCreateSprintButtonClicked}
                 onCancelClicked={() => setState({ showCreateNewSprintDialog: false })}
+            />
+            <ProjectTaskDetailsDialog
+                openDialog={state.showProjectTaskDetailsDialog}
+                projectTask={state.selectedProjectTask}
+                onSubtaskUpdated={onSubtaskUpdated}
+                onDeleteSubtask={onDeleteSubtask}
+                onCreateNewSubtaskClicked={createNewSubtask}
+                onCloseClicked={() => setState({ showProjectTaskDetailsDialog: false })}
             />
             <YesNoDialog
                 openDialog={state.showDeleteSprintWarningDialog}

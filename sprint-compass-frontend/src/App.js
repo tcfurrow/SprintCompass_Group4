@@ -55,8 +55,7 @@ function App() {
     }
 
     const onSnackbarClose = (event, reason) => {
-        if (reason === "clickaway")
-        {
+        if (reason === "clickaway") {
             return;
         }
 

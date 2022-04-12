@@ -22,7 +22,7 @@ namespace SprintCompassBackend.DataAccessObject
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A TeamDao instance has been created!");
+            _logger?.LogInformation("A {0} instance has been created!", "TeamDao");
         }
 
         public async Task<bool> AddTeam(string teamName)

@@ -55,9 +55,8 @@ namespace SprintCompassBackend.Controllers
 
                 string projectName = (projectNameJson.GetString() ?? string.Empty).Trim();
                 string projectDescription = (projectDescriptionJson.GetString() ?? string.Empty).Trim();
-                int teamId;
 
-                if (!teamIdJson.TryGetInt32(out teamId))
+                if (!teamIdJson.TryGetInt32(out int teamId))
                 {
                     teamId = -1;
                 }

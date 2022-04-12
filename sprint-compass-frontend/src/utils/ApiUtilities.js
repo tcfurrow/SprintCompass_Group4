@@ -2,13 +2,12 @@
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
 const serverIp = "https://localhost";
-const serverPort = "5001";
+const serverPort = 5001;
 
 const performHttpMethod = async (method, apiEndpoint, jsonRequestBody = null) => {
     let httpMethod = null;
 
-    switch (method.trim().toLowerCase())
-    {
+    switch (method.trim().toLowerCase()) {
         case "delete":
             httpMethod = "DELETE";
             break;
@@ -22,11 +21,10 @@ const performHttpMethod = async (method, apiEndpoint, jsonRequestBody = null) =>
             httpMethod = "PUT";
             break;
         default:
-            throw new Error(`Invalid http method: ${method}`);
+            throw new Error(`Invalid HTTP method: ${method}`);
     }
 
     const endpoint = `${getServerEndpoint()}/${apiEndpoint}`;
-
     let apiResponse;
 
     if (jsonRequestBody === null) {

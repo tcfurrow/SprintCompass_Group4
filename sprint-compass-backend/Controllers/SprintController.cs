@@ -49,7 +49,12 @@ namespace SprintCompassBackend.Controllers
             if (hasJsonBody)
             {
                 _ = sprintInformation.TryGetProperty("sprintName", out JsonElement sprintNameJson);
-                sprintAdded = await sprintDao.CreateSprint(projectId, sprintNameJson.GetString());
+                string sprintName = sprintNameJson.GetString() ?? string.Empty;
+
+                if (sprintName != string.Empty)
+                {
+                    sprintAdded = await sprintDao.CreateSprint(projectId, sprintName);
+                }
             }
 
             return new

@@ -22,6 +22,8 @@ namespace SprintCompassBackend.DataAccessObject
         {
             _dbConnCtx = dbConnCtx;
             _logger = logger;
+
+            _logger?.LogInformation("A {0} instance has been created!", "ProjectDao");
         }
 
         public async Task<Project?> AddProject(string name, string description, int teamId)

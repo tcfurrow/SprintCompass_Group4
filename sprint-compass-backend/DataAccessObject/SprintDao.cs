@@ -101,20 +101,23 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, sprint_id, product_backlog_id FROM sprint_user_story WHERE sprint_id = ?sprintId;", dbConn);
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT sus.id, pb.title, pb.description FROM sprint_user_story sus INNER JOIN product_backlog pb WHERE sus.product_backlog_id = pb.id AND sus.sprint_id = ?sprintId;", dbConn);
                 mySqlSelectCmd.Parameters.Add("?sprintId", MySqlDbType.Int32).Value = sprintId;
 
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
+                ProjectSubtaskDao projectSubtaskDao = new ProjectSubtaskDao(_dbConnCtx, _logger);
                 DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
 
                 while (await resultReader.ReadAsync())
                 {
                     int userStoryId = resultReader.GetInt32(0);
-                    int productBacklogId = resultReader.GetInt32(2);
+                    string userStoryTitle = resultReader.GetString(1);
+                    string userStoryDescription = resultReader.GetString(2);
+                    List<ProjectSubtask>? subtasks = await projectSubtaskDao.GetUserStorySubtaskList(userStoryId);
 
                     // TODO: Replace this after the Product Backlog task is completed
-                    ProjectTask projectTask = new ProjectTask(-1, "Title", "Description", 1, 1, 1234.0m);
+                    ProjectTask projectTask = new ProjectTask(userStoryId, userStoryTitle, userStoryDescription, 1, 1, 1234.0m, subtasks);
 
                     userStories.Add(projectTask);
                 }

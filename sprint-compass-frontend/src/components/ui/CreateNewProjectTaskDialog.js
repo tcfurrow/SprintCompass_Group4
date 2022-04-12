@@ -1,24 +1,18 @@
-// File Name:    CreateNewSprintDialog.js
+// File Name:    CreateNewProjectTaskDialog.js
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
-import { forwardRef, useState } from "react";
+import { useState } from "react";
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Slide,
     TextField
 } from "@mui/material";
+import DialogSlideTransition from "./effects/DialogSlideTransition";
 
-const CreateNewSprintDialogTransition = forwardRef(function Transition (props, ref) {
-    return (
-        <Slide direction="down" ref={ref} {...props} />
-    );
-});
-
-const CreateNewSprintDialog = (props) => {
+const CreateNewProjectTaskDialog = (props) => {
     const [sprintName, setSprintName] = useState("");
 
     const onCreateSprintButtonClicked = () => {
@@ -29,7 +23,7 @@ const CreateNewSprintDialog = (props) => {
     return (
         <Dialog
             open={props?.openDialog}
-            TransitionComponent={CreateNewSprintDialogTransition}
+            TransitionComponent={DialogSlideTransition}
             onClose={props?.onClose}
             maxWidth="sm"
             keepMounted
@@ -53,4 +47,4 @@ const CreateNewSprintDialog = (props) => {
     );
 }
 
-export default CreateNewSprintDialog;
+export default CreateNewProjectTaskDialog;

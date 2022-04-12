@@ -1,4 +1,6 @@
-﻿namespace SprintCompassBackend.Entities
+﻿using System.Collections.Generic;
+
+namespace SprintCompassBackend.Entities
 {
     public class ProjectTask
     {
@@ -8,8 +10,15 @@
         public int Priority { get; set; }
         public int RelativeEstimate { get; set; }
         public decimal Cost { get; set; }
+        public List<ProjectSubtask> Subtasks { get; set; }
 
-        public ProjectTask(int id, string title, string description, int priority, int relativeEstimate, decimal cost)
+        public ProjectTask(int id,
+                           string title,
+                           string description,
+                           int priority,
+                           int relativeEstimate,
+                           decimal cost,
+                           List<ProjectSubtask>? subtasks = null)
         {
             Id = id;
             Title = title;
@@ -17,6 +26,7 @@
             Priority = priority;
             RelativeEstimate = relativeEstimate;
             Cost = cost;
+            Subtasks = subtasks ?? new List<ProjectSubtask>();
         }
     }
 }
