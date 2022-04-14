@@ -215,7 +215,7 @@ const ProjectsComponent = (props) => {
                     <FontAwesomeIcon icon={faArrowLeft} />
                     Select Different Team
                 </Button>
-                <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">{state.teamProjects[0].team.name}</Typography>
+                <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">{state.teamList.find(team => team.id === state.selectedTeamId).name}</Typography>
                 <div className="grid__two-col-t1">
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Projects</Typography>
@@ -303,6 +303,8 @@ const ProjectsComponent = (props) => {
                         <List className="team-member-list subtle-shadow margin-bottom__small">
                             <ul>
                                 {
+                                    state.teamProjects.length > 0
+                                    &&
                                     state.teamProjects[0].team.members.map((teamMember, index) => (
                                         <ListItem key={`team-member-${index}`}>
                                             <FontAwesomeIcon icon={faUser} />
@@ -334,7 +336,7 @@ const ProjectsComponent = (props) => {
                 <CardContent>
                     <div className="card-content-wrapper">
                         {state.selectedTeamId === -1 && renderSelectTeamPage()}
-                        {state.selectedTeamId >= 0 && state.teamProjects.length > 0 && renderTeamInformationPage()}
+                        {state.selectedTeamId >= 0 && renderTeamInformationPage()}
                     </div>
                 </CardContent>
             </Card>
