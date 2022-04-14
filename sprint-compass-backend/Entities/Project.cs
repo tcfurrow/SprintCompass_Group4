@@ -13,13 +13,13 @@ namespace SprintCompassBackend.Entities
         public string Description { get; set; }
         public Team? Team { get; set; }
         public DateTime? StartDate { get; set; }
-        public List<ProjectTask> ProductBacklog { get; set; }
+        public List<ProductBacklogTask> ProductBacklog { get; set; }
 
         public int StoryPointsEstimateTotal => ProductBacklog?.Sum(projTask => projTask.RelativeEstimate) ?? 0;
 
         public decimal EstimatedCostTotal => ProductBacklog?.Sum(projTask => projTask.Cost) ?? 0.0m;
 
-        public Project(int id, string name, string description, Team? team, DateTime? startDate, List<ProjectTask> productBacklog)
+        public Project(int id, string name, string description, Team? team, DateTime? startDate, List<ProductBacklogTask> productBacklog)
         {
             Id = id;
             Name = name;

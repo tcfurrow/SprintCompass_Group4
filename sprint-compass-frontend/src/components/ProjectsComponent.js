@@ -116,8 +116,7 @@ const ProjectsComponent = (props) => {
         });
     }
 
-    const onViewProjectSprintsButtonClicked = (event) => {
-        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id"));
+    const onViewProjectSprintsButtonClicked = (event, projectId) => {
         const project = state.teamProjects.find(project => project.id === projectId);
 
         navigate("/view_sprints", {
@@ -127,8 +126,7 @@ const ProjectsComponent = (props) => {
         });
     }
 
-    const onEditProjectButtonClicked = (event) => {
-        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-update"));
+    const onEditProjectButtonClicked = (event, projectId) => {
         const projectToUpdate = state.teamProjects.find(project => project.id === projectId);
 
         navigate("/edit_project", {
@@ -138,9 +136,7 @@ const ProjectsComponent = (props) => {
         });
     }
 
-    const onDeleteProjectButtonClicked = (event) => {
-        // TODO: We should probably do data validation here to make sure that the project id is indeed an integer
-        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-delete"));
+    const onDeleteProjectButtonClicked = (event, projectId) => {
         const projectToDelete = state.teamProjects.find(project => project.id === projectId);
 
         setState({
@@ -263,8 +259,7 @@ const ProjectsComponent = (props) => {
                                                         <Button
                                                             aria-label="View Project's Sprints"
                                                             title="View Project's Sprints"
-                                                            onClick={onViewProjectSprintsButtonClicked}
-                                                            data-project-id={teamProject.id}
+                                                            onClick={(e) => onViewProjectSprintsButtonClicked(e, teamProject.id)}
                                                             variant="outlined"
                                                             className="icon-only-button"
                                                         >
@@ -273,8 +268,7 @@ const ProjectsComponent = (props) => {
                                                         <Button
                                                             aria-label="Edit Project"
                                                             title="Edit Project"
-                                                            onClick={onEditProjectButtonClicked}
-                                                            data-project-id-to-update={teamProject.id}
+                                                            onClick={(e) => onEditProjectButtonClicked(e, teamProject.id)}
                                                             variant="outlined"
                                                             className="icon-only-button"
                                                         >
@@ -283,8 +277,7 @@ const ProjectsComponent = (props) => {
                                                         <Button
                                                             aria-label="Delete Project"
                                                             title="Delete Project"
-                                                            onClick={onDeleteProjectButtonClicked}
-                                                            data-project-id-to-delete={teamProject.id}
+                                                            onClick={(e) => onDeleteProjectButtonClicked(e, teamProject.id)}
                                                             variant="outlined"
                                                             className="icon-only-button"
                                                         >

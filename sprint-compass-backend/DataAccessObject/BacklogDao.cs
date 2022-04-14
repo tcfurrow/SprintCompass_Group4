@@ -1,4 +1,7 @@
-﻿using MySql.Data.MySqlClient;
+﻿// File Name:    BacklogDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;
 using System;
@@ -24,163 +27,11 @@ namespace SprintCompassBackend.DataAccessObject
             _logger = logger;
         }
 
-        //public async Task<bool> UpdateProject(Project project)
-        //{
-        //    using MySqlConnection dbConn = _dbConnCtx.GetConnection();
-        //    bool projectUpdated = false;
-
-        //    if (project.Id > 0 && project.Team is not null)
-        //    {
-        //        try
-        //        {
-        //            await dbConn.OpenAsync();
-
-        //            using MySqlCommand mySqlUpdateCmd = new MySqlCommand("UPDATE project SET name = ?name, description = ?description, team_id = ?teamId, start_date = ?startDate WHERE id = ?projectId;", dbConn);
-        //            mySqlUpdateCmd.Parameters.Add("?name", MySqlDbType.VarString).Value = project.Name;
-        //            mySqlUpdateCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = project.Description;
-        //            mySqlUpdateCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = project.Team.Id;
-        //            mySqlUpdateCmd.Parameters.Add("?startDate", MySqlDbType.DateTime).Value = project.StartDate ?? DBNull.Value as object;
-        //            mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = project.Id;
-
-        //            int rowsUpdated = await mySqlUpdateCmd.ExecuteNonQueryAsync();
-        //            projectUpdated = rowsUpdated > 0;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
-        //        }
-        //    }
-
-        //    return projectUpdated;
-        //}
-
-        //public async Task<bool> DeleteProject(int projectId)
-        //{
-        //    using MySqlConnection dbConn = _dbConnCtx.GetConnection();
-        //    bool projectDeleted = false;
-
-        //    try
-        //    {
-        //        await dbConn.OpenAsync();
-
-        //        using MySqlCommand mySqlUpdateCmd = new MySqlCommand("DELETE FROM project WHERE id = ?projectId;", dbConn);
-        //        mySqlUpdateCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
-
-        //        int numberOfRowsDeleted = await mySqlUpdateCmd.ExecuteNonQueryAsync();
-        //        projectDeleted = numberOfRowsDeleted > 0;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
-        //    }
-
-        //    return projectDeleted;
-        //}
-
-        //public async Task<Project?> GetProjectById(int projectId)
-        //{
-        //    using MySqlConnection dbConn = _dbConnCtx.GetConnection();
-
-        //    Project? project = null;
-
-        //    try
-        //    {
-        //        await dbConn.OpenAsync();
-
-        //        using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name, description, team_id, start_date FROM project WHERE id = ?projectId;", dbConn);
-        //        mySqlSelectCmd.Parameters.Add("?projectId", MySqlDbType.Int32).Value = projectId;
-
-        //        await mySqlSelectCmd.ExecuteNonQueryAsync();
-
-        //        DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
-
-        //        if (resultReader.HasRows)
-        //        {
-        //            TeamDao teamDao = new TeamDao(_dbConnCtx);
-
-        //            await resultReader.ReadAsync();
-
-        //            string projectName = resultReader.GetString(1);
-        //            string projectDescription = resultReader.GetString(2);
-        //            int projectTeamOwnerId = resultReader.GetInt32(3);
-        //            DateTime? startDate = null;
-        //            List<ProjectTask> productBacklog = await GetProductBacklog(projectId);
-
-        //            // Get the start date if it is not null
-        //            if (!await resultReader.IsDBNullAsync(4))
-        //            {
-        //                startDate = resultReader.GetDateTime(4);
-        //            }
-
-        //            Team? projectTeamOwner = await teamDao.GetTeamById(projectTeamOwnerId);
-
-        //            project = new Project(projectId, projectName, projectDescription, projectTeamOwner, startDate, productBacklog);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
-        //    }
-
-        //    return project;
-        //}
-
-        //public async Task<List<Project>> GetProjectsByTeamId(int teamId)
-        //{
-        //    using MySqlConnection dbConn = _dbConnCtx.GetConnection();
-
-        //    List<Project> teamProjectList = new List<Project>();
-        //    Team? projectTeamOwner = null;
-
-        //    try
-        //    {
-        //        await dbConn.OpenAsync();
-
-        //        using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, name, description, team_id, start_date FROM project WHERE team_id = ?teamId;", dbConn);
-        //        mySqlSelectCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
-
-        //        await mySqlSelectCmd.ExecuteNonQueryAsync();
-
-        //        DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
-
-        //        // Read over every row
-        //        while (await resultReader.ReadAsync())
-        //        {
-        //            int projectId = resultReader.GetInt32(0);
-        //            string projectName = resultReader.GetString(1);
-        //            string projectDescription = resultReader.GetString(2);
-        //            int projectTeamOwnerId = resultReader.GetInt32(3);
-        //            DateTime? startDate = null;
-        //            List<ProjectTask> productBacklog = await GetProductBacklog(projectId);
-
-        //            // Get the start date if it is not null
-        //            if (!await resultReader.IsDBNullAsync(4))
-        //            {
-        //                startDate = resultReader.GetDateTime(4);
-        //            }
-
-        //            if (projectTeamOwner is null)
-        //            {
-        //                TeamDao teamDao = new TeamDao(_dbConnCtx);
-        //                projectTeamOwner = await teamDao.GetTeamById(projectTeamOwnerId);
-        //            }
-
-        //            teamProjectList.Add(new Project(projectId, projectName, projectDescription, projectTeamOwner, startDate, productBacklog));
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
-        //    }
-
-        //    return teamProjectList;
-        //}
-
-        public async Task<ProjectTask?> AddProjectTask(int projectId, string title, string description, int priority, int relativeEstimate, decimal cost)
+        public async Task<ProductBacklogTask?> AddProjectTask(int projectId, string title, string description, int priority, int relativeEstimate, decimal cost)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
-            ProjectTask? addedProjectTask = null;
+            ProductBacklogTask? addedProjectTask = null;
 
             try
             {
@@ -198,7 +49,7 @@ namespace SprintCompassBackend.DataAccessObject
 
                 if (totalRowsAdded == 1)
                 {
-                    List<ProjectTask> projectProductBacklog = await GetProductBacklog(projectId);
+                    List<ProductBacklogTask> projectProductBacklog = await GetProductBacklog(projectId);
                     addedProjectTask = projectProductBacklog.LastOrDefault();
                 }
             }
@@ -210,11 +61,11 @@ namespace SprintCompassBackend.DataAccessObject
             return addedProjectTask;
         }
 
-        public async Task<List<ProjectTask>> GetProductBacklog(int projectId)
+        public async Task<List<ProductBacklogTask>> GetProductBacklog(int projectId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
-            List<ProjectTask> projectTasks = new List<ProjectTask>();
+            List<ProductBacklogTask> projectTasks = new List<ProductBacklogTask>();
 
             try
             {
@@ -237,7 +88,7 @@ namespace SprintCompassBackend.DataAccessObject
                     int relativeEstimate = resultReader.GetInt32(5);
                     decimal cost = resultReader.GetDecimal(6);
 
-                    projectTasks.Add(new ProjectTask(taskId, title, description, priority, relativeEstimate, cost));
+                    projectTasks.Add(new ProductBacklogTask(taskId, title, description, priority, relativeEstimate, cost));
                 }
             }
             catch (Exception ex)
@@ -246,6 +97,42 @@ namespace SprintCompassBackend.DataAccessObject
             }
 
             return projectTasks;
+        }
+
+        public async Task<ProductBacklogTask?> GetProductBacklogTaskById(int productBacklogId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, project_id, title, description, priority, relative_estimate, cost FROM product_backlog WHERE id = ?productBacklogId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?productBacklogId", MySqlDbType.Int32).Value = productBacklogId;
+
+                await mySqlSelectCmd.ExecuteNonQueryAsync();
+                
+                DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
+
+                if (resultReader.HasRows)
+                {
+                    await resultReader.ReadAsync();
+
+                    string title = resultReader.GetString(2);
+                    string description = resultReader.GetString(3);
+                    int priority = resultReader.GetInt32(4);
+                    int relativeEstimate = resultReader.GetInt32(5);
+                    decimal cost = resultReader.GetDecimal(6);
+
+                    return new ProductBacklogTask(productBacklogId, title, description, priority, relativeEstimate, cost);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return null;
         }
     }
 }

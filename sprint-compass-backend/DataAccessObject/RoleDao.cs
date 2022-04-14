@@ -1,4 +1,7 @@
-﻿using SprintCompassBackend.DataAccessLayer;
+﻿// File Name:    RoleDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using SprintCompassBackend.DataAccessLayer;
 using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
@@ -6,8 +9,6 @@ using System.Threading.Tasks;
 using System.Data.Common;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-
-#nullable enable
 
 namespace SprintCompassBackend.DataAccessObject
 {

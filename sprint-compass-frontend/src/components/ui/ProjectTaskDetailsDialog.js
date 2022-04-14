@@ -60,9 +60,9 @@ const ProjectTaskDetailsDialog = (props) => {
                 keepMounted
                 fullWidth
             >
-                <DialogTitle><strong>Task:</strong> {projectTask?.title}</DialogTitle>
+                <DialogTitle><strong>Task:</strong> {projectTask?.parentProductBacklogTask.title}</DialogTitle>
                 <DialogContent className="padding__small">
-                    <Typography variant="body1" className="margin-bottom__small"><strong>Description:</strong> {projectTask?.description}</Typography>
+                    <Typography variant="body1" className="margin-bottom__small"><strong>Description:</strong> {projectTask?.parentProductBacklogTask.description}</Typography>
                     <TableContainer component={Paper} style={{ maxHeight: 300 }} className="team-project-table subtle-shadow margin-bottom__small">
                         <Table aria-label="User Story Subtasks" stickyHeader>
                             <TableHead>

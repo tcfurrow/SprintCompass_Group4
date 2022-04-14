@@ -26,6 +26,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { httpDelete, httpGet, httpInsert, httpUpdate } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { useLocation } from "react-router-dom";
+import CreateNewProjectTaskDialog from "./ui/CreateNewProjectTaskDialog";
 import ProjectTaskDetailsDialog from "./ui/ProjectTaskDetailsDialog";
 
 const ViewSprintsComponent = (props) => {
@@ -34,8 +35,10 @@ const ViewSprintsComponent = (props) => {
     const initialState = {
         sprints: [],
         selectedSprint: null,
-        selectedProjectTask: null,
+        selectedUserStory: null,
+        projectTaskToDelete: null,
         showCreateNewSprintDialog: false,
+        showCreateNewProjectTaskDialog: false,
         showProjectTaskDetailsDialog: false,
         showDeleteSprintWarningDialog: false
     };
@@ -61,8 +64,6 @@ const ViewSprintsComponent = (props) => {
             
             const sprints = await httpGet(`api/sprint/${location.state.project.id}`);
 
-            console.log(sprints);
-
             if (sprints !== null) {
                 setState({ sprints: sprints });
             }
@@ -78,7 +79,11 @@ const ViewSprintsComponent = (props) => {
 
         if (sprintIndex >= 0 && sprintIndex <= state.sprints.length - 1) {
             const sprint = state.sprints[sprintIndex];
-            setState({ selectedSprint: sprint });
+            
+            setState({
+                selectedSprint: sprint,
+                selectedUserStory: null
+            });
         }
     }
 
@@ -109,22 +114,82 @@ const ViewSprintsComponent = (props) => {
         }
     }
 
-    const onViewProjectTaskButtonClicked = (event) => {
+    const onViewProjectTaskButtonClicked = (event, projectTaskIndex) => {
         if (state.selectedSprint === null) {
             return;
         }
 
-        const projectTaskIndex = parseInt(event.currentTarget.getAttribute("data-project-task-index"));
-        const selectedProjectTask = state.selectedSprint.userStories[projectTaskIndex];
+        const selectedUserStory = state.selectedSprint.userStories[projectTaskIndex];
 
         setState({
-            selectedProjectTask: selectedProjectTask,
+            selectedUserStory: selectedUserStory,
             showProjectTaskDetailsDialog: true
         });
     }
 
-    const onCreateNewTaskButtonClicked = (event) => {
-        const projectTaskIndex = parseInt(event.currentTarget.getAttribute("data-sprint-index"));
+    const createNewProjectTask = async (sprintId, productBacklogId) => {
+        setState({ showCreateNewProjectTaskDialog: false });
+
+        try {
+            props.showSnackbarMessage("Creating new project task...");
+
+            const createProjectTaskResponse = await httpInsert(`api/projecttask/${sprintId}/${productBacklogId}`);
+
+            if (createProjectTaskResponse.projectTaskCreated) {
+                props.showSnackbarMessage(`Project task has been created successfully!`);
+
+                const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
+                
+                if (sprintIndex !== -1) {
+                    const newProjectUserStories = state.sprints[sprintIndex].userStories;
+                    newProjectUserStories.push(createProjectTaskResponse.projectTask);
+
+                    const updatedSprints = [ ...state.sprints ];
+                    updatedSprints[sprintIndex].userStories = newProjectUserStories;
+
+                    setState({ sprints: updatedSprints });
+                }
+            } else {
+                props.showSnackbarMessage(`Failed to create project task due to server-side issue.`);
+            }
+        } catch (error) {
+            props.showSnackbarMessage("An error occurred while attempting to create the project task.");
+        }
+    }
+
+    const deleteProjectTask = async () => {
+        try {
+            props.showSnackbarMessage(`Deleting project task with the id of ${state.projectTaskToDelete.id}...`);
+
+            const deleteProjectTaskResponse = await httpDelete(`api/projecttask/${state.projectTaskToDelete.id}`);
+
+            if (deleteProjectTaskResponse?.projectTaskDeleted) {
+                props.showSnackbarMessage(`The project task with the id of ${state.projectTaskToDelete.id} was deleted successfully!`);
+
+                const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
+
+                if (sprintIndex !== -1) {
+                    const newProjectUserStories = state.sprints[sprintIndex].userStories;
+                    const userStoryToRemoveIndex = newProjectUserStories.findIndex(userStory => userStory.id === state.projectTaskToDelete.id);
+
+                    if (userStoryToRemoveIndex !== -1) {
+                        const updatedSprints = [ ...state.sprints ];
+                        updatedSprints[sprintIndex].userStories.splice(userStoryToRemoveIndex, 1);
+
+                        setState({
+                            sprints: updatedSprints,
+                            selectedSprint: updatedSprints[sprintIndex]
+                        });
+                    }
+                }
+            } else {
+                props.showSnackbarMessage(`Failed to delete project task due to server-side issue.`);
+            }
+        } catch (error) {
+            props.showSnackbarMessage("An error occurred while attempting to delete the project task.");
+        } finally {
+            setState({ projectTaskToDelete: null });
+        }
     }
 
     const onDeleteSprintButtonClicked = () => {
@@ -157,7 +222,7 @@ const ViewSprintsComponent = (props) => {
 
     // NOTE: This button is defined in the ProjectTaskDetailsDialog component
     const createNewSubtask = async (subtaskTitle) => {
-        if (state.selectedProjectTask === null) {
+        if (state.selectedUserStory === null) {
             return;
         }
 
@@ -165,7 +230,7 @@ const ViewSprintsComponent = (props) => {
             props.showSnackbarMessage("Creating new subtask...");
 
             const subtask = {
-                userStoryId: state.selectedProjectTask.id,
+                userStoryId: state.selectedUserStory.id,
                 subtaskTitle: subtaskTitle
             };
 
@@ -177,7 +242,7 @@ const ViewSprintsComponent = (props) => {
                 const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
                 
                 if (sprintIndex !== -1) {
-                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedProjectTask.id);
+                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedUserStory.id);
                     
                     if (projectTaskIndex !== -1) {
                         let newSubtaskList = state.sprints[sprintIndex].userStories[projectTaskIndex].subtasks;
@@ -188,7 +253,7 @@ const ViewSprintsComponent = (props) => {
 
                         setState({
                             sprints: updatedSprints,
-                            selectedProjectTask: updatedSprints[sprintIndex].userStories[projectTaskIndex]
+                            selectedUserStory: updatedSprints[sprintIndex].userStories[projectTaskIndex]
                         });
                     }
                 }
@@ -217,7 +282,7 @@ const ViewSprintsComponent = (props) => {
                 const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
                 
                 if (sprintIndex !== -1) {
-                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedProjectTask.id);
+                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedUserStory.id);
                     
                     if (projectTaskIndex !== -1) {
                         let subtaskList = state.sprints[sprintIndex].userStories[projectTaskIndex].subtasks;
@@ -230,7 +295,7 @@ const ViewSprintsComponent = (props) => {
 
                         setState({
                             sprints: updatedSprints,
-                            selectedProjectTask: updatedSprints[sprintIndex].userStories[projectTaskIndex]
+                            selectedUserStory: updatedSprints[sprintIndex].userStories[projectTaskIndex]
                         });
                     }
                 }
@@ -248,17 +313,17 @@ const ViewSprintsComponent = (props) => {
         }
 
         try {
-            props.showSnackbarMessage(`Deleting subtask "${subtaskToDelete.title}"...`);
+            props.showSnackbarMessage(`Deleting subtask "${subtaskToDelete.parentProductBacklogTask.title}"...`);
 
             const deleteSubtaskResponse = await httpDelete(`api/projectsubtask/${subtaskToDelete.id}`);
 
             if (deleteSubtaskResponse?.subtaskDeleted) {
-                props.showSnackbarMessage(`Subtask "${subtaskToDelete.title}" has been deleted successfully!`);
+                props.showSnackbarMessage(`Subtask "${subtaskToDelete.parentProductBacklogTask.title}" has been deleted successfully!`);
 
                 const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
                 
                 if (sprintIndex !== -1) {
-                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedProjectTask.id);
+                    const projectTaskIndex = state.sprints[sprintIndex].userStories.findIndex(projectTask => projectTask.id === state.selectedUserStory.id);
                     
                     if (projectTaskIndex !== -1) {
                         let subtaskList = state.sprints[sprintIndex].userStories[projectTaskIndex].subtasks;
@@ -271,15 +336,15 @@ const ViewSprintsComponent = (props) => {
 
                         setState({
                             sprints: updatedSprints,
-                            selectedProjectTask: updatedSprints[sprintIndex].userStories[projectTaskIndex]
+                            selectedUserStory: updatedSprints[sprintIndex].userStories[projectTaskIndex]
                         });
                     }
                 }
             } else {
-                props.showSnackbarMessage(`Failed to delete subtask "${subtaskToDelete.title}" due to server-side issue.`);
+                props.showSnackbarMessage(`Failed to delete subtask "${subtaskToDelete.parentProductBacklogTask.title}" due to server-side issue.`);
             }
         } catch (error) {
-            props.showSnackbarMessage(`An error occurred while attempting to delete the subtask "${subtaskToDelete.title}".`);
+            props.showSnackbarMessage(`An error occurred while attempting to delete the subtask "${subtaskToDelete.parentProductBacklogTask.title}".`);
         }
     }
 
@@ -379,17 +444,17 @@ const ViewSprintsComponent = (props) => {
                                                             >
                                                                 <TableCell component="th" scope="row">
                                                                     <Typography key={`table-row-user-story-priority-${index}`}>
-                                                                        {userStory.priority}
+                                                                        {userStory.parentProductBacklogTask.priority}
                                                                     </Typography>
                                                                 </TableCell>
                                                                 <TableCell component="th" scope="row">
                                                                     <Typography key={`table-row-user-story-title-${index}`}>
-                                                                        {userStory.title}
+                                                                        {userStory.parentProductBacklogTask.title}
                                                                     </Typography>
                                                                 </TableCell>
                                                                 <TableCell component="th" scope="row">
                                                                     <Typography key={`table-row-user-story-description-${index}`}>
-                                                                        {userStory.description}
+                                                                        {userStory.parentProductBacklogTask.description}
                                                                     </Typography>
                                                                 </TableCell>
                                                                 <TableCell component="th" scope="row">
@@ -397,16 +462,16 @@ const ViewSprintsComponent = (props) => {
                                                                         <Button
                                                                             aria-label="View Project Task"
                                                                             title="View Project Task"
-                                                                            data-project-task-index={index}
-                                                                            onClick={onViewProjectTaskButtonClicked}
+                                                                            onClick={(e) => onViewProjectTaskButtonClicked(e, index)}
                                                                             variant="outlined"
                                                                             className="icon-only-button"
                                                                         >
                                                                             <FontAwesomeIcon icon={faEye} />
                                                                         </Button>
                                                                         <Button
-                                                                            aria-label="Delete Project"
-                                                                            title="Delete Project"
+                                                                            aria-label="Delete Project Task"
+                                                                            title="Delete Project Task"
+                                                                            onClick={() => setState({ projectTaskToDelete: state.selectedSprint.userStories[index] })}
                                                                             variant="outlined"
                                                                             className="icon-only-button"
                                                                         >
@@ -425,7 +490,13 @@ const ViewSprintsComponent = (props) => {
                                         state.selectedSprint !== null
                                         &&
                                         <div className="action-buttons-container">
-                                            <Button variant="outlined" className="auto-width-big-screens margin-bottom__small">Create New Task</Button>
+                                            <Button
+                                                onClick={() => setState({ showCreateNewProjectTaskDialog: true })}
+                                                variant="outlined"
+                                                className="auto-width-big-screens margin-bottom__small"
+                                            >
+                                                Create New Task
+                                            </Button>
                                             <Button variant="outlined" className="auto-width-big-screens margin-bottom__small" onClick={onDeleteSprintButtonClicked}>Delete Sprint</Button>
                                         </div>
                                     }
@@ -440,9 +511,15 @@ const ViewSprintsComponent = (props) => {
                 onCreateNewSprintButtonClicked={onCreateNewSprintDialogCreateSprintButtonClicked}
                 onCancelClicked={() => setState({ showCreateNewSprintDialog: false })}
             />
+            <CreateNewProjectTaskDialog
+                openDialog={state.showCreateNewProjectTaskDialog}
+                selectedSprint={state.selectedSprint}
+                onCreate={createNewProjectTask}
+                onCancel={() => setState({ showCreateNewProjectTaskDialog: false })}
+            />
             <ProjectTaskDetailsDialog
                 openDialog={state.showProjectTaskDetailsDialog}
-                projectTask={state.selectedProjectTask}
+                projectTask={state.selectedUserStory}
                 onSubtaskUpdated={onSubtaskUpdated}
                 onDeleteSubtask={onDeleteSubtask}
                 onCreateNewSubtaskClicked={createNewSubtask}
@@ -454,6 +531,13 @@ const ViewSprintsComponent = (props) => {
                 content={`Are you sure you want to delete the sprint "${state.selectedSprint?.name}" (id: ${state.selectedSprint?.id})? This operation can not be reversed.`}
                 onYesClicked={onConfirmDeleteSprintButtonClicked}
                 onNoClicked={() => setState({ showDeleteSprintWarningDialog: false })}
+            />
+            <YesNoDialog
+                openDialog={state.projectTaskToDelete !== null}
+                title="Delete Project Task Confirmation"
+                content={`Are you sure you want to delete the project task "${state.projectTaskToDelete?.parentProductBacklogTask.title}" (id: ${state.projectTaskToDelete?.id})? This operation can not be reversed.`}
+                onYesClicked={deleteProjectTask}
+                onNoClicked={() => setState({ projectTaskToDelete: null })}
             />
         </ThemeProvider>
     );

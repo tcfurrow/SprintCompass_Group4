@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// File Name:    TeamDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;

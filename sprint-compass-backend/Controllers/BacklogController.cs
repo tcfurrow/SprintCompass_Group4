@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// File Name:    BacklogController.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
@@ -7,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-#nullable enable
 
 namespace SprintCompassBackend.Controllers
 {
@@ -29,7 +30,7 @@ namespace SprintCompassBackend.Controllers
 
         [HttpGet("{projectId}")]
         [Produces("application/json")]
-        public async Task<List<ProjectTask>> GetBacklog(int projectId)
+        public async Task<List<ProductBacklogTask>> GetBacklog(int projectId)
         {
             BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
 
@@ -45,7 +46,7 @@ namespace SprintCompassBackend.Controllers
         )
         {
             BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
-            ProjectTask? backlogTask = null;
+            ProductBacklogTask? backlogTask = null;
 
             JsonElement projectIdJson;
             JsonElement titleJson;

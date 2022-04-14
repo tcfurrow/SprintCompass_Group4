@@ -1,8 +1,7 @@
-// File Name:    CreateNewProjectTaskDialog.js
-// By:           Darian Benam, Jordan Fox, Teresa Furrow
-
-import { useState } from "react";
+import DialogSlideTransition from "./effects/DialogSlideTransition";
+import { useEffect, useState } from "react";
 import {
+    Autocomplete,
     Button,
     Dialog,
     DialogActions,
@@ -10,14 +9,16 @@ import {
     DialogTitle,
     TextField
 } from "@mui/material";
-import DialogSlideTransition from "./effects/DialogSlideTransition";
 
 const CreateNewProjectTaskDialog = (props) => {
-    const [sprintName, setSprintName] = useState("");
+    const [selectedBacklogId, setSelectedBacklogId] = useState(null);
 
-    const onCreateSprintButtonClicked = () => {
-        props?.onCreateNewSprintButtonClicked(sprintName);
-        setSprintName("");
+    const onCreateButtonClicked = () => {
+        if (selectedBacklogId === null) {
+            return;
+        }
+
+        props?.onCreate(props.selectedSprint.id, selectedBacklogId);
     }
 
     return (
@@ -29,19 +30,30 @@ const CreateNewProjectTaskDialog = (props) => {
             keepMounted
             fullWidth
         >
-            <DialogTitle>Create New Sprint</DialogTitle>
+            <DialogTitle>Add Project Task to {props?.selectedSprint?.name}</DialogTitle>
             <DialogContent className="padding__small">
-                <TextField
-                    label="Sprint Name"
-                    variant="outlined"
-                    className="margin-bottom__small"
-                    onChange={(e) => setSprintName(e.target.value)}
-                    fullWidth
-                />
+                {
+                    props.selectedSprint !== null
+                    &&
+                    <Autocomplete
+                        options={props.selectedSprint.project.productBacklog}
+                        getOptionLabel={(option) => `${option.title} [priority: ${option.priority}]`}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Product Backlog"
+                                variant="outlined"
+                            />
+                        )}
+                        onChange={(e, value) => setSelectedBacklogId(value?.id)}
+                        className="margin-bottom__small"
+                        fullWidth
+                    />
+                }
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCreateSprintButtonClicked}>Create Sprint</Button>
-                <Button onClick={props?.onCancelClicked}>Cancel</Button>
+                <Button onClick={onCreateButtonClicked}>Create</Button>
+                <Button onClick={props?.onCancel}>Cancel</Button>
             </DialogActions>
         </Dialog>
     );

@@ -1,4 +1,7 @@
-﻿using MySql.Data.MySqlClient;
+﻿// File Name:    ProjectDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;
 using System;
@@ -8,8 +11,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
-
-#nullable enable
 
 namespace SprintCompassBackend.DataAccessObject
 {
@@ -147,7 +148,7 @@ namespace SprintCompassBackend.DataAccessObject
                     string projectDescription = resultReader.GetString(2);
                     int projectTeamOwnerId = resultReader.GetInt32(3);
                     DateTime? startDate = null;
-                    List<ProjectTask> productBacklog = await GetProductBacklog(projectId);
+                    List<ProductBacklogTask> productBacklog = await GetProductBacklog(projectId);
 
                     // Get the start date if it is not null
                     if (!await resultReader.IsDBNullAsync(4))
@@ -194,7 +195,7 @@ namespace SprintCompassBackend.DataAccessObject
                     string projectDescription = resultReader.GetString(2);
                     int projectTeamOwnerId = resultReader.GetInt32(3);
                     DateTime? startDate = null;
-                    List<ProjectTask> productBacklog = await GetProductBacklog(projectId);
+                    List<ProductBacklogTask> productBacklog = await GetProductBacklog(projectId);
 
                     // Get the start date if it is not null
                     if (!await resultReader.IsDBNullAsync(4))
@@ -219,11 +220,11 @@ namespace SprintCompassBackend.DataAccessObject
             return teamProjectList;
         }
 
-        public async Task<ProjectTask?> AddProjectTask(int projectId, string title, string description, int priority, int relativeEstimate, decimal cost)
+        public async Task<ProductBacklogTask?> AddProjectTask(int projectId, string title, string description, int priority, int relativeEstimate, decimal cost)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
-            ProjectTask? addedProjectTask = null;
+            ProductBacklogTask? addedProjectTask = null;
 
             try
             {
@@ -241,7 +242,7 @@ namespace SprintCompassBackend.DataAccessObject
 
                 if (totalRowsAdded == 1)
                 {
-                    List<ProjectTask> projectProductBacklog = await GetProductBacklog(projectId);
+                    List<ProductBacklogTask> projectProductBacklog = await GetProductBacklog(projectId);
                     addedProjectTask = projectProductBacklog.LastOrDefault();
                 }
             }
@@ -253,11 +254,11 @@ namespace SprintCompassBackend.DataAccessObject
             return addedProjectTask;
         }
 
-        public async Task<List<ProjectTask>> GetProductBacklog(int projectId)
+        public async Task<List<ProductBacklogTask>> GetProductBacklog(int projectId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
-            List<ProjectTask> projectTasks = new List<ProjectTask>();
+            List<ProductBacklogTask> projectTasks = new List<ProductBacklogTask>();
 
             try
             {
@@ -280,7 +281,7 @@ namespace SprintCompassBackend.DataAccessObject
                     int relativeEstimate = resultReader.GetInt32(5);
                     decimal cost = resultReader.GetDecimal(6);
 
-                    projectTasks.Add(new ProjectTask(taskId, title, description, priority, relativeEstimate, cost));
+                    projectTasks.Add(new ProductBacklogTask(taskId, title, description, priority, relativeEstimate, cost));
                 }
             }
             catch (Exception ex)

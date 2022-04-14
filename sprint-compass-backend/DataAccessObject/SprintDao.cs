@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// File Name:    SprintDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;
@@ -101,23 +104,25 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT sus.id, pb.title, pb.description FROM sprint_user_story sus INNER JOIN product_backlog pb WHERE sus.product_backlog_id = pb.id AND sus.sprint_id = ?sprintId;", dbConn);
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, sprint_id, product_backlog_id FROM sprint_user_story WHERE sprint_id = ?sprintId;", dbConn);
                 mySqlSelectCmd.Parameters.Add("?sprintId", MySqlDbType.Int32).Value = sprintId;
 
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
+                BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
                 ProjectSubtaskDao projectSubtaskDao = new ProjectSubtaskDao(_dbConnCtx, _logger);
+
                 DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
 
                 while (await resultReader.ReadAsync())
                 {
                     int userStoryId = resultReader.GetInt32(0);
-                    string userStoryTitle = resultReader.GetString(1);
-                    string userStoryDescription = resultReader.GetString(2);
+                    int productBacklogId = resultReader.GetInt32(2);
+
+                    ProductBacklogTask? productBacklogTask = await backlogDao.GetProductBacklogTaskById(productBacklogId);
                     List<ProjectSubtask>? subtasks = await projectSubtaskDao.GetUserStorySubtaskList(userStoryId);
 
-                    // TODO: Replace this after the Product Backlog task is completed
-                    ProjectTask projectTask = new ProjectTask(userStoryId, userStoryTitle, userStoryDescription, 1, 1, 1234.0m, subtasks);
+                    ProjectTask projectTask = new ProjectTask(userStoryId, sprintId, productBacklogTask, subtasks);
 
                     userStories.Add(projectTask);
                 }
@@ -127,7 +132,7 @@ namespace SprintCompassBackend.DataAccessObject
                 _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
-            userStories = userStories.OrderBy(sprint => sprint.Priority).ToList();
+            userStories = userStories.OrderBy(sprint => sprint.ParentProductBacklogTask?.Priority).ToList();
 
             return userStories;
         }

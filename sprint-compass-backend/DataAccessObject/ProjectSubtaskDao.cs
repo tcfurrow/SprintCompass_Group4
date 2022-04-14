@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// File Name:    ProjectSubtaskDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;
@@ -46,7 +49,7 @@ namespace SprintCompassBackend.DataAccessObject
                 {
                     int subtaskId = (int)mySqlInsertCmd.LastInsertedId;
 
-                    return new ProjectSubtask(subtaskId, null, title, SubtaskStatus.Open);
+                    return new ProjectSubtask(subtaskId, title, SubtaskStatus.Open);
                 }
             }
             catch (Exception ex)
@@ -84,7 +87,7 @@ namespace SprintCompassBackend.DataAccessObject
                     string subtaskTitle = resultReader.GetString(1);
                     SubtaskStatus subtaskStatus = (SubtaskStatus)resultReader.GetInt32(2);
 
-                    projectSubtasks.Add(new ProjectSubtask(subtaskId, null, subtaskTitle, subtaskStatus));
+                    projectSubtasks.Add(new ProjectSubtask(subtaskId, subtaskTitle, subtaskStatus));
                 }
             }
             catch (Exception ex)
@@ -114,7 +117,7 @@ namespace SprintCompassBackend.DataAccessObject
                     
                     if (rowsUpdated > 0)
                     {
-                        return new ProjectSubtask(subtaskId, null, title, status);
+                        return new ProjectSubtask(subtaskId, title, status);
                     }
                 }
                 catch (Exception ex)

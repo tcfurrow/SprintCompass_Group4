@@ -1,31 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SprintCompassBackend.Entities
 {
     public class ProjectTask
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public int Priority { get; set; }
-        public int RelativeEstimate { get; set; }
-        public decimal Cost { get; set; }
+
+        public int SprintId { get; set; }
+
+        public ProductBacklogTask? ParentProductBacklogTask { get; set; }
+
         public List<ProjectSubtask> Subtasks { get; set; }
 
         public ProjectTask(int id,
-                           string title,
-                           string description,
-                           int priority,
-                           int relativeEstimate,
-                           decimal cost,
+                           int sprintId,
+                           ProductBacklogTask? parentProductBacklogTask,
                            List<ProjectSubtask>? subtasks = null)
         {
             Id = id;
-            Title = title;
-            Description = description;
-            Priority = priority;
-            RelativeEstimate = relativeEstimate;
-            Cost = cost;
+            SprintId = sprintId;
+            ParentProductBacklogTask = parentProductBacklogTask;
             Subtasks = subtasks ?? new List<ProjectSubtask>();
         }
     }
