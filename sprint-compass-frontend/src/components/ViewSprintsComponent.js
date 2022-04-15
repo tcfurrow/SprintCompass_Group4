@@ -1,3 +1,6 @@
+// File Name:    ViewSprintsComponent.js
+// By:           Darian Benam, Jordan Fox, Teresa Furrow
+
 import "../scss/App.scss";
 import CreateNewSprintDialog from "./ui/CreateNewSprintDialog";
 import YesNoDialog from "./ui/YesNoDialog";
@@ -265,13 +268,15 @@ const ViewSprintsComponent = (props) => {
         }
     }
 
-    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskStatus) => {
+    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskTeamMemberAssignedTo, subtaskStatus, subtaskTotalHoursWorked) => {
         try {
-            props.showSnackbarMessage("Updating subtask status...");
+            props.showSnackbarMessage("Updating subtask...");
             
             const subtask = {
                 title: subtaskTitle,
-                status: subtaskStatus
+                assignedTo: subtaskTeamMemberAssignedTo,
+                status: subtaskStatus,
+                totalHoursWorked: subtaskTotalHoursWorked
             };
 
             const updateSubtaskResponse = await httpUpdate(`api/projectsubtask/${subtaskId}`, subtask);
@@ -522,6 +527,7 @@ const ViewSprintsComponent = (props) => {
             <ProjectTaskDetailsDialog
                 openDialog={state.showProjectTaskDetailsDialog}
                 projectTask={state.selectedUserStory}
+                teamMemberList={state?.selectedSprint?.project?.team?.members}
                 onSubtaskUpdated={onSubtaskUpdated}
                 onDeleteSubtask={onDeleteSubtask}
                 onCreateNewSubtaskClicked={createNewSubtask}

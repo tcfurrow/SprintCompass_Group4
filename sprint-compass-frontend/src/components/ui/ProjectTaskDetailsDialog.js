@@ -1,3 +1,6 @@
+// File Name:    ProjectTaskDetailsDialog.js
+// By:           Darian Benam, Jordan Fox, Teresa Furrow
+
 import DialogSlideTransition from "./effects/DialogSlideTransition";
 import {
     Button,
@@ -20,16 +23,28 @@ import {
     Typography
 } from "@mui/material";
 import { useState } from "react";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import theme from "../../theme";
+import EditSubtaskDialog from "./EditSubtaskDialog";
 import YesNoDialog from "./YesNoDialog";
 
 const ProjectTaskDetailsDialog = (props) => {
     const projectTask = props.projectTask;
+    const teamMemberList = props.teamMemberList;
 
     const [newSubtaskName, setNewSubtaskName] = useState("");
+    const [subtaskToEdit, setSubtaskToEdit] = useState(null);
     const [subtaskToDelete, setSubtaskToDelete] = useState(null);
+
+    const onSubtaskUpdatedFromDialog = (subtaskId, updatedTitle, updatedTotalHoursWorked) => {
+        const subtask = projectTask.subtasks.find(subtask => subtask.id === subtaskId);
+        
+        if (subtask !== null) {
+            props?.onSubtaskUpdated(subtaskId, updatedTitle, subtask.assignedTo?.id ?? null, subtask.status, updatedTotalHoursWorked);
+            setSubtaskToEdit(null);
+        }
+    }
 
     const onCreateNewSubtaskClicked = () => {
         if (newSubtaskName.trim().length === 0) {
@@ -37,12 +52,29 @@ const ProjectTaskDetailsDialog = (props) => {
         }
 
         props?.onCreateNewSubtaskClicked(newSubtaskName);
+        setNewSubtaskName("");
+    }
+
+    const onSubtaskTeamMemberAssignedToUpdated = (event, subtaskId) => {
+        const subtask = projectTask.subtasks.find(subtask => subtask.id === subtaskId);
+
+        if (subtask !== null) {
+            let teamMemberId = event.target.value;
+
+            if (teamMemberId === -1) {
+                teamMemberId = null;
+            }
+
+            props?.onSubtaskUpdated(subtaskId, subtask.title, event.target.value, subtask.status, subtask.totalHoursWorked);
+        }
     }
 
     const onSubtaskStatusUpdated = (event, subtaskId) => {
-        const subtaskTitle = projectTask.subtasks.find(subtask => subtask.id === subtaskId).title;
+        const subtask = projectTask.subtasks.find(subtask => subtask.id === subtaskId);
 
-        props?.onSubtaskUpdated(subtaskId, subtaskTitle, event.target.value);
+        if (subtask !== null) {
+            props?.onSubtaskUpdated(subtaskId, subtask.title, subtask.assignedTo?.id ?? null, event.target.value, subtask.totalHoursWorked);
+        }
     }
 
     const onConfirmDeleteSubtask = () => {
@@ -77,6 +109,9 @@ const ProjectTaskDetailsDialog = (props) => {
                                         <Typography color="common.white" variant="body1">Status</Typography>
                                     </TableCell>
                                     <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                        <Typography color="common.white" variant="body1">Total Hours Worked</Typography>
+                                    </TableCell>
+                                    <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                         <Typography color="common.white" variant="body1">Actions</Typography>
                                     </TableCell>
                                 </TableRow>
@@ -90,22 +125,38 @@ const ProjectTaskDetailsDialog = (props) => {
                                             style={{ backgroundColor: theme.palette.common.white }}
                                         >
                                             <TableCell component="th" scope="row">
-                                                <Typography key={`table-row-user-story-priority-${index}`}>
-                                                    {subtask.title}
-                                                </Typography>
+                                                <Typography key={`table-row-user-story-title-${index}`}>{subtask.title}</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                <Typography key={`table-row-user-story-priority-${index}`}>
-                                                    Implement This
-                                                </Typography>
+                                                <FormControl size="small" fullWidth>
+                                                    <InputLabel>Team Member</InputLabel>
+                                                    <Select
+                                                        key={`table-row-subtask-team-member-${index}`}
+                                                        label="Team Member"
+                                                        value={subtask.assignedTo?.id ?? -1}
+                                                        onChange={(e) => onSubtaskTeamMemberAssignedToUpdated(e, subtask.id)}
+                                                    >
+                                                        <MenuItem value={-1}>Unassigned</MenuItem>
+                                                        {
+                                                            teamMemberList?.map((teamMember, teamMemberIndex) => (
+                                                                <MenuItem
+                                                                    key={`select-menu-item-team-member-${teamMemberIndex}`}
+                                                                    value={teamMember.id}
+                                                                >
+                                                                    {`${teamMember.firstName} ${teamMember.lastName}`}
+                                                                </MenuItem>
+                                                            ))
+                                                        }
+                                                    </Select>
+                                                </FormControl>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
                                                 <FormControl size="small" fullWidth>
                                                     <InputLabel>Status</InputLabel>
                                                     <Select
-                                                        key={`table-row-user-story-subtask-status-${index}`}
-                                                        value={subtask.status}
+                                                        key={`select-menu-item-subtask-status-${index}`}
                                                         label="Status"
+                                                        value={subtask.status}
                                                         onChange={(e) => onSubtaskStatusUpdated(e, subtask.id)}
                                                     >
                                                         <MenuItem value={0}>Open</MenuItem>
@@ -117,15 +168,29 @@ const ProjectTaskDetailsDialog = (props) => {
                                                 </FormControl>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                <Button
-                                                    aria-label="Delete Subtask"
-                                                    title="Delete Subtask"
-                                                    onClick={() => setSubtaskToDelete(projectTask.subtasks.find(currSubtask => currSubtask.id === subtask.id))}
-                                                    variant="outlined"
-                                                    className="icon-only-button"
-                                                >
-                                                    <FontAwesomeIcon icon={faTrash} />
-                                                </Button>
+                                                <Typography key={`table-row-subtask-total-hours-worked-${index}`}>{subtask.totalHoursWorked} hour(s)</Typography>
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
+                                                <div className="flex-gap">
+                                                    <Button
+                                                        aria-label="Edit Subtask"
+                                                        title="Edit Subtask"
+                                                        onClick={() => setSubtaskToEdit(projectTask.subtasks.find(currSubtask => currSubtask.id === subtask.id))}
+                                                        variant="outlined"
+                                                        className="icon-only-button"
+                                                    >
+                                                        <FontAwesomeIcon icon={faEdit} />
+                                                    </Button>
+                                                    <Button
+                                                        aria-label="Delete Subtask"
+                                                        title="Delete Subtask"
+                                                        onClick={() => setSubtaskToDelete(projectTask.subtasks.find(currSubtask => currSubtask.id === subtask.id))}
+                                                        variant="outlined"
+                                                        className="icon-only-button"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </Button>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -138,8 +203,10 @@ const ProjectTaskDetailsDialog = (props) => {
                         <div className="flex-gap">
                             <TextField
                                 label="Subtask Name"
+                                size="small"
                                 variant="outlined"
                                 onChange={(e) => setNewSubtaskName(e.target.value)}
+                                value={newSubtaskName}
                                 fullWidth
                             />
                             <Button
@@ -157,6 +224,12 @@ const ProjectTaskDetailsDialog = (props) => {
                     <Button onClick={props?.onCloseClicked}>Close</Button>
                 </DialogActions>
             </Dialog>
+            <EditSubtaskDialog
+                openDialog={subtaskToEdit !== null}
+                subtask={subtaskToEdit}
+                onUpdate={onSubtaskUpdatedFromDialog}
+                onCancel={() => setSubtaskToEdit(null)}
+            />
             <YesNoDialog
                 openDialog={subtaskToDelete !== null}
                 title="Delete Sub-task Confirmation"
