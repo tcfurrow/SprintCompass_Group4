@@ -312,13 +312,15 @@ const ViewSprintsComponent = (props) => {
             return;
         }
 
+        const subtaskTitle = subtaskToDelete.title;
+
         try {
-            props.showSnackbarMessage(`Deleting subtask "${subtaskToDelete.parentProductBacklogTask.title}"...`);
+            props.showSnackbarMessage(`Deleting subtask "${subtaskTitle}"...`);
 
             const deleteSubtaskResponse = await httpDelete(`api/projectsubtask/${subtaskToDelete.id}`);
 
             if (deleteSubtaskResponse?.subtaskDeleted) {
-                props.showSnackbarMessage(`Subtask "${subtaskToDelete.parentProductBacklogTask.title}" has been deleted successfully!`);
+                props.showSnackbarMessage(`Subtask "${subtaskTitle}" has been deleted successfully!`);
 
                 const sprintIndex = state.sprints.findIndex(sprint => sprint.id === state.selectedSprint.id);
                 
@@ -341,10 +343,10 @@ const ViewSprintsComponent = (props) => {
                     }
                 }
             } else {
-                props.showSnackbarMessage(`Failed to delete subtask "${subtaskToDelete.parentProductBacklogTask.title}" due to server-side issue.`);
+                props.showSnackbarMessage(`Failed to delete subtask "${subtaskTitle}" due to server-side issue.`);
             }
         } catch (error) {
-            props.showSnackbarMessage(`An error occurred while attempting to delete the subtask "${subtaskToDelete.parentProductBacklogTask.title}".`);
+            props.showSnackbarMessage(`An error occurred while attempting to delete the subtask "${subtaskTitle}".`);
         }
     }
 
