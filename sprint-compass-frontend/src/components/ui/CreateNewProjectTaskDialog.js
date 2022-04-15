@@ -1,5 +1,8 @@
+// File Name:    CreateNewProjectTaskDialog.js
+// By:           Darian Benam, Jordan Fox, Teresa Furrow
+
 import DialogSlideTransition from "./effects/DialogSlideTransition";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Autocomplete,
     Button,
@@ -19,6 +22,7 @@ const CreateNewProjectTaskDialog = (props) => {
         }
 
         props?.onCreate(props.selectedSprint.id, selectedBacklogId);
+        setSelectedBacklogId(null);
     }
 
     return (
@@ -36,7 +40,7 @@ const CreateNewProjectTaskDialog = (props) => {
                     props.selectedSprint !== null
                     &&
                     <Autocomplete
-                        options={props.selectedSprint.project.productBacklog}
+                        options={props.selectedSprint.project.productBacklog.filter(backlog => props.selectedSprint.userStories.findIndex(userStory => userStory.parentProductBacklogTask.id === backlog.id) === -1)}
                         getOptionLabel={(option) => `${option.title} [priority: ${option.priority}]`}
                         renderInput={(params) => (
                             <TextField
@@ -46,6 +50,7 @@ const CreateNewProjectTaskDialog = (props) => {
                             />
                         )}
                         onChange={(e, value) => setSelectedBacklogId(value?.id)}
+                        value={props.selectedSprint.project.productBacklog.find(backlog => backlog.id === selectedBacklogId) || null}
                         className="margin-bottom__small"
                         fullWidth
                     />

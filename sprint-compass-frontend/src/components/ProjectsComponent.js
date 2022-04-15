@@ -300,20 +300,22 @@ const ProjectsComponent = (props) => {
                     </div>
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Team Members</Typography>
-                        <List className="team-member-list subtle-shadow margin-bottom__small">
-                            <ul>
-                                {
-                                    state.teamProjects.length > 0
-                                    &&
-                                    state.teamProjects[0].team.members.map((teamMember, index) => (
-                                        <ListItem key={`team-member-${index}`}>
-                                            <FontAwesomeIcon icon={faUser} />
-                                            <ListItemText primary={`${teamMember.firstName} ${teamMember.lastName}`} />
-                                        </ListItem>
-                                    ))
-                                }
-                            </ul>
-                        </List>
+                        {
+                            state.teamProjects.length > 0 && state.teamProjects[0].team.members.length > 0
+                            &&
+                            <List className="team-member-list subtle-shadow margin-bottom__small">
+                                <ul>
+                                    {
+                                        state.teamProjects[0].team.members.map((teamMember, index) => (
+                                            <ListItem key={`team-member-${index}`}>
+                                                <FontAwesomeIcon icon={faUser} />
+                                                <ListItemText primary={`${teamMember.firstName} ${teamMember.lastName}`} />
+                                            </ListItem>
+                                        ))
+                                    }
+                                </ul>
+                            </List>
+                        }
                         <div className="action-buttons-container">
                             <Button variant="outlined" onClick={onAddTeamMemberButtonClicked}>
                                 <FontAwesomeIcon icon={faUserPlus} />
