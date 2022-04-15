@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using SprintCompassBackend.Entities;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SprintCompassBackend.Controllers

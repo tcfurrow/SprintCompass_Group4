@@ -76,12 +76,22 @@ namespace SprintCompassBackend.Controllers
                 ProjectSubtaskDao projectSubtaskDao = new ProjectSubtaskDao(_dbConnCtx, _logger);
 
                 _ = projectInformation.TryGetProperty("title", out JsonElement subtaskTitleJson);
+                _ = projectInformation.TryGetProperty("assignedTo", out JsonElement assignedToJson);
                 _ = projectInformation.TryGetProperty("status", out JsonElement subtaskStatusJson);
+                _ = projectInformation.TryGetProperty("totalHoursWorked", out JsonElement totalHoursWorkedJson);
 
                 string subtaskTitle = subtaskTitleJson.GetString() ?? string.Empty;
                 _ = subtaskStatusJson.TryGetInt32(out int subtaskStatusId);
+                _ = totalHoursWorkedJson.TryGetDouble(out double totalHoursWorked);
 
-                updatedSubtask = await projectSubtaskDao.UpdateProjectSubtask(subtaskId, subtaskTitle, (SubtaskStatus)subtaskStatusId);
+                int? assignedTo = null;
+
+                if (assignedToJson.ValueKind is not JsonValueKind.Null && assignedToJson.TryGetInt32(out int teamMemberId))
+                {
+                    assignedTo = teamMemberId;
+                }
+
+                updatedSubtask = await projectSubtaskDao.UpdateProjectSubtask(subtaskId, subtaskTitle, assignedTo, (SubtaskStatus)subtaskStatusId, totalHoursWorked);
             }
 
             return new
