@@ -1,28 +1,21 @@
 // File Name:    YesNoDialog.js
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
-import { forwardRef } from "react";
+import DialogSlideTransition from "./effects/DialogSlideTransition";
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle,
-    Slide
+    DialogTitle
 } from "@mui/material";
-
-const YesNoDialogTransition = forwardRef(function Transition (props, ref) {
-    return (
-        <Slide direction="up" ref={ref} {...props} />
-    );
-});
 
 const YesNoDialog = (props) => {
     return (
         <Dialog
             open={props?.openDialog}
-            TransitionComponent={YesNoDialogTransition}
+            TransitionComponent={DialogSlideTransition}
             onClose={props?.onClose}
             keepMounted
         >

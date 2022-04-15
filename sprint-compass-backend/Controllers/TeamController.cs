@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// File Name:    TeamController.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
@@ -6,8 +9,6 @@ using SprintCompassBackend.Entities;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-#nullable enable
 
 namespace SprintCompassBackend.Controllers
 {
@@ -23,7 +24,7 @@ namespace SprintCompassBackend.Controllers
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A TeamController instance has been created!");
+            _logger?.LogInformation("A {0} instance has been created!", "TeamController");
         }
 
         [HttpGet]

@@ -1,4 +1,7 @@
-﻿using MySql.Data.MySqlClient;
+﻿// File Name:    DatabaseConnectionContext.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using MySql.Data.MySqlClient;
 
 namespace SprintCompassBackend.DataAccessLayer
 {

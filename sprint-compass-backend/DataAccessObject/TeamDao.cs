@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// File Name:    TeamDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.Entities;
@@ -22,7 +25,7 @@ namespace SprintCompassBackend.DataAccessObject
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A TeamDao instance has been created!");
+            _logger?.LogInformation("A {0} instance has been created!", "TeamDao");
         }
 
         public async Task<bool> AddTeam(string teamName)
@@ -203,6 +206,40 @@ namespace SprintCompassBackend.DataAccessObject
             }
 
             return teamMemberList;
+        }
+
+        public async Task<TeamMember?> GetTeamMemberById(int teamMemberId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT tml.id, tml.team_id, tml.user_id, tml.role_id, user.first_name, user.last_name FROM team_member_list tml INNER JOIN user ON user.id = ?teamMemberId WHERE tml.user_id = ?teamMemberId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?teamMemberId", MySqlDbType.Int32).Value = teamMemberId;
+
+                await mySqlSelectCmd.ExecuteNonQueryAsync();
+
+                DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
+
+                while (resultReader.HasRows)
+                {
+                    await resultReader.ReadAsync();
+
+                    int roleId = resultReader.GetInt32(3);
+                    string firstName = resultReader.GetString(4);
+                    string lastName = resultReader.GetString(5);
+
+                    return new TeamMember(teamMemberId, firstName, lastName, roleId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return null;
         }
     }
 }

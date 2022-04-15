@@ -1,12 +1,14 @@
-﻿using SprintCompassBackend.DataAccessLayer;
+﻿// File Name:    RoleDao.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using SprintCompassBackend.DataAccessLayer;
 using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
 using System.Data.Common;
 using Microsoft.Extensions.Logging;
-
-#nullable enable
+using System.Reflection;
 
 namespace SprintCompassBackend.DataAccessObject
 {
@@ -20,7 +22,7 @@ namespace SprintCompassBackend.DataAccessObject
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A RoleDao instance has been created!");
+            _logger?.LogInformation("A {0} instance has been created!", "RoleDao");
         }
 
         public async Task<List<string>> GetRoles()

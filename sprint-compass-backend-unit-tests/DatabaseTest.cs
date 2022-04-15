@@ -77,7 +77,7 @@ namespace SprintCompassBackendUnitTests
             ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
 
             List<Project> initialTeamProjectsList = await projectDao.GetProjectsByTeamId(teamId);
-            Project project = await projectDao.AddProject("GitHub", "The home of open-source software!", teamId);
+            Project? project = await projectDao.AddProject("GitHub", "The home of open-source software!", teamId);
 
             Assert.NotNull(project);
 
@@ -160,10 +160,10 @@ namespace SprintCompassBackendUnitTests
             int projectId = 1;
 
             ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
-            List<ProjectTask> productBacklog = await projectDao.GetProductBacklog(projectId);
+            List<ProductBacklogTask> productBacklog = await projectDao.GetProductBacklog(projectId);
 
-            ProjectTask firstTask = productBacklog[0];
-            ProjectTask secondTask = productBacklog[1];
+            ProductBacklogTask firstTask = productBacklog[0];
+            ProductBacklogTask secondTask = productBacklog[1];
 
             Assert.Equal("Capture/Maintain basic project information", firstTask.Title);
             Assert.Equal("Facilitate information collection", firstTask.Description);
@@ -190,7 +190,7 @@ namespace SprintCompassBackendUnitTests
             int relativeEstimate = 5;
             decimal cost = 650m;
 
-            ProjectTask projectTask = await projectDao.AddProjectTask(projectId, title, description, priority, relativeEstimate, cost);
+            ProductBacklogTask projectTask = await projectDao.AddProjectTask(projectId, title, description, priority, relativeEstimate, cost);
 
             Assert.NotNull(projectTask);
             Assert.Equal(title, projectTask.Title);
@@ -207,11 +207,22 @@ namespace SprintCompassBackendUnitTests
             ProjectDao projectDao = new ProjectDao(new DatabaseConnectionContext(MySqlConnectionString));
             List<Project> teamProjects = await projectDao.GetProjectsByTeamId(teamId);
 
-            Project sprintCompassProject = teamProjects.FirstOrDefault(proj => proj.Name == "SprintCompass");
+            Project? sprintCompassProject = teamProjects.FirstOrDefault(proj => proj.Name == "SprintCompass");
 
             Assert.NotNull(sprintCompassProject);
-            Assert.True(sprintCompassProject.StoryPointsEstimateTotal > 0);
-            Assert.True(sprintCompassProject.EstimatedCostTotal > 0.0m);
+            Assert.True(sprintCompassProject?.StoryPointsEstimateTotal > 0);
+            Assert.True(sprintCompassProject?.EstimatedCostTotal > 0.0m);
+        }
+
+        [Fact]
+        public async void TestCreateSubtask()
+        {
+            int projectTaskId = 1; // This is also known as the user story id
+
+            ProjectSubtaskDao projectSubtaskDao = new ProjectSubtaskDao(new DatabaseConnectionContext(MySqlConnectionString));
+            ProjectSubtask? subtask = await projectSubtaskDao.CreateSubtask(projectTaskId, "This subtask was created via a C# unit test.");
+
+            Assert.NotNull(subtask);
         }
     }
 }

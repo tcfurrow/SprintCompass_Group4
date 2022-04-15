@@ -81,6 +81,12 @@ body, html {
     }
 }
 
+.padding {
+    &__small {
+        padding: 1.5em !important;
+    }
+}
+
 .card-content-wrapper {
     margin: 0 auto;
     padding: 0 4vh;
@@ -109,25 +115,27 @@ body, html {
     }
 }
 
-.team-member-list, .team-project-table {
+.subtle-shadow {
     box-shadow: 0 0 1vw rgba(0, 0, 0, 0.1) !important;
+}
+
+.team-member-list, .team-project-table, .backlog-tasks-table {
     max-height: 100vh;
     overflow: auto;
 }
 
 .action-buttons-container {
     display: flex;
+    gap: 1rem;
 
     & > button {
         width: 100%;
 
         @media only screen and (min-width: 768px) {
-            width: auto;
+            &.auto-width-big-screens {
+                width: auto;
+            }
         }
-    }
-
-    @media only screen and (min-width: 768px) {
-        justify-content: right;
     }
 }
 
@@ -136,11 +144,38 @@ body, html {
     gap: 1em;
 }
 
+.sprint-list {
+    height: 256px;
+    overflow-y: scroll;
+}
+
+.modal {
+    &__container {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__content {
+        background-color: #fff;
+        padding: 32px;
+        align-items: center;
+        display: grid;
+        justify-content: center;
+    }
+}
+
 @media only screen and (min-width: 768px) {
     .grid {
-        &__two-col {
+        &__two-col-t1 {
             display: grid;
             grid-template-columns: 4fr 1fr;
+            grid-gap: 8vh;
+        }
+
+        &__two-col-t2 {
+            display: grid;
+            grid-template-columns: 2fr 6fr;
             grid-gap: 8vh;
         }
 

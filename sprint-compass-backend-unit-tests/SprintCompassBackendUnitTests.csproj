@@ -5,6 +5,8 @@
     <RootNamespace>sprint_compass_backend_unit_tests</RootNamespace>
 
     <IsPackable>false</IsPackable>
+
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

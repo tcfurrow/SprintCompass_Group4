@@ -1,4 +1,4 @@
-﻿// File Name:    ProjectController.cs
+﻿// File Name:    BacklogController.cs
 // By:           Darian Benam, Jordan Fox, and Teresa Furrow
 
 using Microsoft.AspNetCore.Mvc;
@@ -15,62 +15,95 @@ namespace SprintCompassBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProjectController : ControllerBase
+    public class BacklogController : ControllerBase
     {
         private readonly DatabaseConnectionContext _dbConnCtx;
-        private readonly ILogger<ProjectController>? _logger;
+        private readonly ILogger? _logger;
 
-        public ProjectController(DatabaseConnectionContext dbConnCtx, ILogger<ProjectController>? logger = null)
+        public BacklogController(DatabaseConnectionContext dbConnCtx, ILogger? logger = null)
         {
             _dbConnCtx = dbConnCtx;
             _logger = logger;
 
-            _logger?.LogInformation("A {0} instance has been created!", "ProjectController");
+            _logger?.LogInformation("A BacklogController instance has been created!");
         }
 
-        [HttpGet("{teamId}")]
+        [HttpGet("{projectId}")]
         [Produces("application/json")]
-        public async Task<List<Project>> GetTeamProjects(int teamId)
+        public async Task<List<ProductBacklogTask>> GetBacklog(int projectId)
         {
-            ProjectDao projectDao = new ProjectDao(_dbConnCtx, _logger);
+            BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
 
-            return await projectDao.GetProjectsByTeamId(teamId);
+            return await backlogDao.GetProductBacklog(projectId);
         }
 
         [HttpPost]
         [Produces("application/json")]
-        public async Task<object?> AddProject
+        public async Task<object?> AddBacklogTask
         (
             [FromBody]
             JsonElement requestBodyJson
         )
         {
-            ProjectDao projectDao = new ProjectDao(_dbConnCtx, _logger);
-            Project? project = null;
+            BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
+            ProductBacklogTask? backlogTask = null;
+
+            JsonElement projectIdJson;
+            JsonElement titleJson;
+            JsonElement descriptionJson;
+            JsonElement priorityJson;
+            JsonElement relativeEstimateJson;
+            JsonElement costJson;
 
             // TODO: Maybe validate the data from the client (such as preventing duplicate project names from existing
             //       for a team.
-            if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement projectInformation))
+            if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement backlogTaskInformation))
             {
-                _ = projectInformation.TryGetProperty("projectName", out JsonElement projectNameJson);
-                _ = projectInformation.TryGetProperty("projectDescription", out JsonElement projectDescriptionJson);
-                _ = projectInformation.TryGetProperty("teamId", out JsonElement teamIdJson);
+                _ = backlogTaskInformation.TryGetProperty("projectId", out projectIdJson);
+                _ = backlogTaskInformation.TryGetProperty("title", out titleJson);
+                _ = backlogTaskInformation.TryGetProperty("description", out descriptionJson);
+                _ = backlogTaskInformation.TryGetProperty("priority", out priorityJson);
+                _ = backlogTaskInformation.TryGetProperty("relativeEstimate", out relativeEstimateJson);
+                _ = backlogTaskInformation.TryGetProperty("cost", out costJson);
 
-                string projectName = (projectNameJson.GetString() ?? string.Empty).Trim();
-                string projectDescription = (projectDescriptionJson.GetString() ?? string.Empty).Trim();
+                string title = (titleJson.GetString() ?? string.Empty).Trim();
+                string description = (descriptionJson.GetString() ?? string.Empty).Trim();
 
-                if (!teamIdJson.TryGetInt32(out int teamId))
+                int projectId;
+
+                if (!projectIdJson.TryGetInt32(out projectId))
                 {
-                    teamId = -1;
+                    projectId = -1;
                 }
 
-                project = await projectDao.AddProject(projectName, projectDescription, teamId);
+                int priority;
+
+                if (!priorityJson.TryGetInt32(out priority))
+                {
+                    priority = -1;
+                }
+
+                int relativeEstimate;
+
+                if (!relativeEstimateJson.TryGetInt32(out relativeEstimate))
+                {
+                    relativeEstimate = -1;
+                }
+
+                int cost;
+
+                if (!costJson.TryGetInt32(out cost))
+                {
+                    cost = -1;
+                }
+
+                backlogTask = await backlogDao.AddProjectTask(projectId, title, description, priority, relativeEstimate, cost);
             }
 
             return new
             {
-                Error = project is null,
-                AddedProject = project
+                Error = backlogTask is null,
+                AddedProject = backlogTask
             };
         }
 
@@ -110,7 +143,7 @@ namespace SprintCompassBackend.Controllers
                     projectToUpdate.StartDate = startDate == default
                         ? projectToUpdate.StartDate
                         : startDate;
-                    
+
                     projectUpdated = await projectDao.UpdateProject(projectToUpdate);
                 }
             }

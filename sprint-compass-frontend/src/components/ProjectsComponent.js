@@ -22,7 +22,7 @@ import {
     Typography
 } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
-import { faArrowLeft, faEdit, faPlus, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ThemeProvider } from "@mui/material/styles";
 import YesNoDialog from "./ui/YesNoDialog";
@@ -116,8 +116,17 @@ const ProjectsComponent = (props) => {
         });
     }
 
-    const onEditProjectButtonClicked = (event) => {
-        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-update"));
+    const onViewProjectSprintsButtonClicked = (event, projectId) => {
+        const project = state.teamProjects.find(project => project.id === projectId);
+
+        navigate("/view_sprints", {
+            state: {
+                project: project
+            }
+        });
+    }
+
+    const onEditProjectButtonClicked = (event, projectId) => {
         const projectToUpdate = state.teamProjects.find(project => project.id === projectId);
 
         navigate("/edit_project", {
@@ -127,9 +136,7 @@ const ProjectsComponent = (props) => {
         });
     }
 
-    const onDeleteProjectButtonClicked = (event) => {
-        // TODO: We should probably do data validation here to make sure that the project id is indeed an integer
-        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-delete"));
+    const onDeleteProjectButtonClicked = (event, projectId) => {
         const projectToDelete = state.teamProjects.find(project => project.id === projectId);
 
         setState({
@@ -208,25 +215,25 @@ const ProjectsComponent = (props) => {
                     <FontAwesomeIcon icon={faArrowLeft} />
                     Select Different Team
                 </Button>
-                <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">{state.teamProjects[0].team.name}</Typography>
-                <div className="grid__two-col">
+                <Typography variant="h4" className="margin-bottom__small word break-text-on-overflow ">{state.teamList.find(team => team.id === state.selectedTeamId).name}</Typography>
+                <div className="grid__two-col-t1">
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Projects</Typography>
-                        <TableContainer component={Paper} style={{ maxHeight: 300 }} className="team-project-table margin-bottom__small">
+                        <TableContainer component={Paper} style={{ maxHeight: 300 }} className="team-project-table subtle-shadow margin-bottom__small">
                             <Table aria-label="Current Team's Projects" stickyHeader>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Project Name</Typography>
+                                            <Typography color="common.white" variant="body1">Project Name</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Description</Typography>
+                                            <Typography color="common.white" variant="body1">Description</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Start Date</Typography>
+                                            <Typography color="common.white" variant="body1">Start Date</Typography>
                                         </TableCell>
                                         <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                            <Typography color="common.white" variant="h6">Action</Typography>
+                                            <Typography color="common.white" variant="body1">Action</Typography>
                                         </TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -250,9 +257,18 @@ const ProjectsComponent = (props) => {
                                                 <TableCell component="th" scope="row">
                                                     <div className="flex-gap">
                                                         <Button
+                                                            aria-label="View Project's Sprints"
+                                                            title="View Project's Sprints"
+                                                            onClick={(e) => onViewProjectSprintsButtonClicked(e, teamProject.id)}
+                                                            variant="outlined"
+                                                            className="icon-only-button"
+                                                        >
+                                                            <FontAwesomeIcon icon={faRunning} />
+                                                        </Button>
+                                                        <Button
                                                             aria-label="Edit Project"
-                                                            onClick={onEditProjectButtonClicked}
-                                                            data-project-id-to-update={teamProject.id}
+                                                            title="Edit Project"
+                                                            onClick={(e) => onEditProjectButtonClicked(e, teamProject.id)}
                                                             variant="outlined"
                                                             className="icon-only-button"
                                                         >
@@ -260,8 +276,8 @@ const ProjectsComponent = (props) => {
                                                         </Button>
                                                         <Button
                                                             aria-label="Delete Project"
-                                                            onClick={onDeleteProjectButtonClicked}
-                                                            data-project-id-to-delete={teamProject.id}
+                                                            title="Delete Project"
+                                                            onClick={(e) => onDeleteProjectButtonClicked(e, teamProject.id)}
                                                             variant="outlined"
                                                             className="icon-only-button"
                                                         >
@@ -276,7 +292,7 @@ const ProjectsComponent = (props) => {
                             </Table>
                         </TableContainer>
                         <div className="action-buttons-container">
-                            <Button variant="outlined" onClick={onAddProjectButtonClicked}>
+                            <Button variant="outlined" onClick={onAddProjectButtonClicked} className="auto-width-big-screens">
                                 <FontAwesomeIcon icon={faPlus} />
                                 Add Project
                             </Button>
@@ -284,18 +300,22 @@ const ProjectsComponent = (props) => {
                     </div>
                     <div>
                         <Typography variant="h6" className="margin-bottom__small">Team Members</Typography>
-                        <List className="team-member-list margin-bottom__small">
-                            <ul>
-                                {
-                                    state.teamProjects[0].team.members.map((teamMember, index) => (
-                                        <ListItem key={`team-member-${index}`}>
-                                            <FontAwesomeIcon icon={faUser} />
-                                            <ListItemText primary={`${teamMember.firstName} ${teamMember.lastName}`} />
-                                        </ListItem>
-                                    ))
-                                }
-                            </ul>
-                        </List>
+                        {
+                            state.teamProjects.length > 0 && state.teamProjects[0].team.members.length > 0
+                            &&
+                            <List className="team-member-list subtle-shadow margin-bottom__small">
+                                <ul>
+                                    {
+                                        state.teamProjects[0].team.members.map((teamMember, index) => (
+                                            <ListItem key={`team-member-${index}`}>
+                                                <FontAwesomeIcon icon={faUser} />
+                                                <ListItemText primary={`${teamMember.firstName} ${teamMember.lastName}`} />
+                                            </ListItem>
+                                        ))
+                                    }
+                                </ul>
+                            </List>
+                        }
                         <div className="action-buttons-container">
                             <Button variant="outlined" onClick={onAddTeamMemberButtonClicked}>
                                 <FontAwesomeIcon icon={faUserPlus} />
@@ -318,7 +338,7 @@ const ProjectsComponent = (props) => {
                 <CardContent>
                     <div className="card-content-wrapper">
                         {state.selectedTeamId === -1 && renderSelectTeamPage()}
-                        {state.selectedTeamId >= 0 && state.teamProjects.length > 0 && renderTeamInformationPage()}
+                        {state.selectedTeamId >= 0 && renderTeamInformationPage()}
                     </div>
                 </CardContent>
             </Card>
