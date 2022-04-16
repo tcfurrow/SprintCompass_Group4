@@ -49,6 +49,8 @@ const ReportsComponent = (props) => {
     projectId: -1,
     projectToDelete: null,
     backlogList: [],
+    sprintsList: [],
+    summary: [],
     showDeleteProjectWarningDialog: false,
     projectedDeletedSuccessfully: false,
   };
@@ -78,9 +80,15 @@ const ReportsComponent = (props) => {
     } else if (state.projectId > 0) {
       (async () => {
         await fetchProjectBacklog(state.projectId);
+        await fetchSprints(state.projectId);
       })();
     }
   }, [state.projectId]);
+
+  useEffect(() => {
+    console.log("summary");
+    console.log(state.summary);
+  }, [state.summary]);
 
   const onTeamNameSelected = (e, selectedOption) => {
     setState({ teamName: selectedOption, selectedTeamId: selectedOption.id });
@@ -113,7 +121,6 @@ const ReportsComponent = (props) => {
   const fetchTeamProjects = async (teamId) => {
     try {
       setState({ projectsList: [] });
-
       props.showSnackbarMessage(
         `Fetching list of projects for team id ${teamId}...`
       );
@@ -127,6 +134,55 @@ const ReportsComponent = (props) => {
     } catch (error) {
       props.showSnackbarMessage(
         "An error occurred while attempting to fetch the list of projects."
+      );
+    }
+  };
+
+  const fetchSprints = async (projectId) => {
+    try {
+      setState({ sprintsList: [] });
+
+      props.showSnackbarMessage(`Fetching list of sprints for ${projectId}...`);
+      const sprints = await httpGet(`api/sprint/${projectId}`);
+      if (sprints !== null) {
+        props.showSnackbarMessage(`Found ${sprints.length} sprint(s).`);
+        setState({ sprintsList: sprints });
+        console.log(sprints);
+        for (let i = 0; i < sprints.length; i++) {
+          let subs = [];
+          for (let j = 0; j < sprints[i].userStories.length; j++) {
+            for (
+              let k = 0;
+              k < sprints[i].userStories[j].subtasks.length;
+              k++
+            ) {
+              let subTemp = {
+                memberId: sprints[i].userStories[j].subtasks[k].assignedTo.id,
+                firstName:
+                  sprints[i].userStories[j].subtasks[k].assignedTo.firstName,
+                lastName:
+                  sprints[i].userStories[j].subtasks[k].assignedTo.lastName,
+                totalHoursWorked:
+                  sprints[i].userStories[j].subtasks[k].totalHoursWorked,
+              };
+              if (subTemp != null || subTemp != undefined) {
+                subs.push(subTemp);
+              }
+            }
+            let temp = {
+              priority:
+                sprints[i].userStories[j].parentProductBacklogTask.priority,
+              title: sprints[i].userStories[j].parentProductBacklogTask.title,
+              hours: subs,
+            };
+            state.summary.push(temp);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      props.showSnackbarMessage(
+        "An error occurred while attempting to fetch the list of sprints."
       );
     }
   };
@@ -177,10 +233,24 @@ const ReportsComponent = (props) => {
                     Task
                   </Typography>
                 </TableCell>
+                <TableCell
+                  style={{ backgroundColor: theme.palette.primary.main }}
+                >
+                  <Typography color="common.white" variant="h6">
+                    Team Member
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  style={{ backgroundColor: theme.palette.primary.main }}
+                >
+                  <Typography color="common.white" variant="h6">
+                    Actual Hours
+                  </Typography>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {state.backlogList.map((task, index) => (
+              {state.summary.map((task, index) => (
                 <TableRow
                   key={`task-${index}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -192,6 +262,25 @@ const ReportsComponent = (props) => {
                   <TableCell component="th" scope="row">
                     <Typography>{task.title}</Typography>
                   </TableCell>
+                  <TableCell component="th" scope="row">
+                    <Typography>
+                      {console.log(task.hours)} {task.hours[1].lastName}
+                    </Typography>
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    <Typography>{task.hours[1].totalHoursWorked}</Typography>
+                  </TableCell>
+                  {/* {task.hours.map((hour, index2) => (
+                    <TableRow
+                      key={`task-${index2}`}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      style={{ backgroundColor: theme.palette.common.white }}
+                    >
+                      <TableCell component="th" scope="row">
+                        <Typography>{hour.firstName}</Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))} */}
                 </TableRow>
               ))}
             </TableBody>
@@ -213,6 +302,9 @@ const ReportsComponent = (props) => {
             <Autocomplete
               options={state.teamList}
               getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               renderInput={(params) => (
                 <TextField {...params} label="Team Name" variant="outlined" />
               )}
@@ -224,6 +316,9 @@ const ReportsComponent = (props) => {
             <Autocomplete
               options={state.projectsList}
               getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               renderInput={(params) => (
                 <TextField {...params} label="Products" variant="outlined" />
               )}

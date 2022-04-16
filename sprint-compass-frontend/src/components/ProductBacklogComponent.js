@@ -446,6 +446,9 @@ const ProductBacklogComponent = (props) => {
             <Autocomplete
               options={state.teamList}
               getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               renderInput={(params) => (
                 <TextField {...params} label="Team Name" variant="outlined" />
               )}
@@ -457,6 +460,9 @@ const ProductBacklogComponent = (props) => {
             <Autocomplete
               options={state.projectsList}
               getOptionLabel={(option) => option.name}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               renderInput={(params) => (
                 <TextField {...params} label="Products" variant="outlined" />
               )}
