@@ -122,12 +122,12 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlUpdateCmd = new MySqlCommand("UPDATE sprint_user_story_subtask SET title = ?title, team_member_assigned_to_id = ?assignedTo, status_id = ?statusId, total_hours_worked = ?totalHoursWorked WHERE id = ?subtaskId;", dbConn);
+                using MySqlCommand mySqlUpdateCmd = new MySqlCommand("UPDATE sprint_user_story_subtask SET title = ?title, team_member_assigned_to_id = ?assignedTo, status_id = ?statusId, total_hours_worked = ?totalHoursWorked, hours_reestimate = ?hoursReestimate WHERE id = ?subtaskId;", dbConn);
                 mySqlUpdateCmd.Parameters.Add("?title", MySqlDbType.VarString).Value = title;
                 mySqlUpdateCmd.Parameters.Add("?assignedTo", MySqlDbType.Int32).Value = teamMemberUserId;
                 mySqlUpdateCmd.Parameters.Add("?statusId", MySqlDbType.Int32).Value = status;
                 mySqlUpdateCmd.Parameters.Add("?subtaskId", MySqlDbType.Int32).Value = subtaskId;
-                mySqlUpdateCmd.Parameters.Add("?totalHoursWorked", MySqlDbType.Double).Value = subtaskId;
+                mySqlUpdateCmd.Parameters.Add("?totalHoursWorked", MySqlDbType.Double).Value = totalHoursWorked;
                 mySqlUpdateCmd.Parameters.Add("?hoursReestimate", MySqlDbType.Double).Value = hoursReestimate;
 
                 int rowsUpdated = await mySqlUpdateCmd.ExecuteNonQueryAsync();
