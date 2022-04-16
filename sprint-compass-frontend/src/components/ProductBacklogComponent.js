@@ -80,11 +80,6 @@ const ProductBacklogComponent = (props) => {
     }
   }, [state.projectId]);
 
-  //   const isInputInvalid =
-  //     state.projectName.trim().length === 0 ||
-  //     state.projectDescription.trim().length === 0 ||
-  //     state.selectedTeamId === -1;
-
   const handleModalOpen = () => {
     setState({ modalOpen: true });
   };
