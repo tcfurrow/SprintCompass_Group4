@@ -56,31 +56,28 @@ namespace SprintCompassBackend.DataAccessObject
             return teamAdded;
         }
 
-        //public async Task<bool> AddMemberToTeam(int teamId, int userId, Role role)
-        public async Task<Team?> AddMemberToTeam(string firstname, string lastname, int role)
+        public async Task<bool?> AddMemberToTeam(int teamId, int userId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
-            //bool userAdded = false;
-            Team? userAdded = null;
 
             try
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO team_member_list (team_id, user_id, role_id) VALUES (?teamId, ?userId, ?roleId);", dbConn);
-                mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = firstname;
-                mySqlInsertCmd.Parameters.Add("?userId", MySqlDbType.Int32).Value = lastname;
-                mySqlInsertCmd.Parameters.Add("?roleId", MySqlDbType.Int32).Value = role;
+                using MySqlCommand mySqlInsertCmd = new MySqlCommand("INSERT INTO team_member_list (team_id, user_id, role_id) VALUES (?teamId, ?userId, 0);", dbConn);
+                mySqlInsertCmd.Parameters.Add("?teamId", MySqlDbType.Int32).Value = teamId;
+                mySqlInsertCmd.Parameters.Add("?userId", MySqlDbType.Int32).Value = userId;
 
                 int totalRowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
-                //userAdded = totalRowsAdded == 1;
+
+                return totalRowsAdded == 1;
             }
             catch (Exception ex)
             {
                 _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
-            return userAdded;
+            return null;
         }
 
         public async Task<bool> RemoveMemberFromTeam(int teamId, int userId)

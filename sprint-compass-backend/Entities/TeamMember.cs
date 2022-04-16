@@ -1,4 +1,7 @@
-﻿using System;
+﻿// File Name:    TeamMember.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using System;
 
 namespace SprintCompassBackend.Entities
 {

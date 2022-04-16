@@ -22,10 +22,10 @@ import {
     TableRow,
     Typography
 } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import { useEffect, useReducer } from "react";
 import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ThemeProvider } from "@mui/material/styles";
 import { httpDelete, httpGet, httpInsert, httpUpdate } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { useLocation } from "react-router-dom";

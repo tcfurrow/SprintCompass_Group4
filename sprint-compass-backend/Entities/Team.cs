@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// File Name:    Team.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using System.Collections.Generic;
 
 namespace SprintCompassBackend.Entities
 {

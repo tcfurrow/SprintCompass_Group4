@@ -26,16 +26,17 @@ namespace SprintCompassBackend.Controllers
             _logger?.LogInformation("A {0} instance has been created!", "TeamMemberController");
         }
 
-        [HttpPost]
+        /*[HttpPost("{teamId}")]
         [Produces("application/json")]
         public async Task<object> AddTeamMember
         (
+            int teamId,
             [FromBody]
             JsonElement requestBodyJson
         )
         {
             TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
-            Team? teamMemberAdded = null;
+            TeamMember? addedTeamMember = null;
 
             if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement projectInformation))
             {
@@ -52,14 +53,15 @@ namespace SprintCompassBackend.Controllers
                     roleId = -1;
                 }
 
+
                 teamMemberAdded = await teamDao.AddMemberToTeam(firstName, lastName, roleId);
             }
 
             return new
             {
-                TeamMemberAdded = teamMemberAdded is null,
-                AddedTeamMember = teamMemberAdded
+                TeamMemberAdded = addedTeamMember is null,
+                AddedTeamMember = addedTeamMember
             };
-        }
+        }*/
     }
 }

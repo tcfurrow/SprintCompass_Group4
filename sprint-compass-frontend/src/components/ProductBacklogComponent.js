@@ -111,9 +111,7 @@ const ProductBacklogComponent = (props) => {
                 setState({ projectsList: teamProjects });
             }
         } catch (error) {
-            props.showSnackbarMessage(
-                "An error occurred while attempting to fetch the list of projects."
-            );
+            props.showSnackbarMessage("An error occurred while attempting to fetch the list of projects.");
         }
     }
 
@@ -134,7 +132,10 @@ const ProductBacklogComponent = (props) => {
     }
 
     const onTeamNameSelected = (e, selectedOption) => {
-        setState({ teamName: selectedOption, selectedTeamId: selectedOption.id });
+        setState({
+            teamName: selectedOption,
+            selectedTeamId: selectedOption.id
+        });
     }
 
     const onProjectSelected = (e, selectedOption) => {
@@ -231,27 +232,32 @@ const ProductBacklogComponent = (props) => {
                         onChange={onTaskTitleChange}
                         autoFocus={true}
                         className="margin-bottom__small"
+                        size="small"
                     />
                     <TextField
                         label="Description"
                         onChange={onTaskDescriptionChange}
                         className="margin-bottom__small"
+                        size="small"
                     />
                     <TextField
                         label="Priority"
                         onChange={onTaskPriorityChange}
                         className="margin-bottom__small"
+                        size="small"
                     />
                     <TextField
                         label="Relative Estimate"
                         onChange={onTaskRelativeEstimateChange}
                         placeholder="Task relative estimate"
                         className="margin-bottom__small"
+                        size="small"
                     />
                     <TextField
                         label="Cost"
                         onChange={onTaskCostChange}
                         className="margin-bottom__small"
+                        size="small"
                     />
                     <Button
                         variant="outlined"
@@ -259,7 +265,7 @@ const ProductBacklogComponent = (props) => {
                         onClick={onAddTaskToDatabaseButtonClicked}
                     >
                         <FontAwesomeIcon icon={faPlus} />
-                        Add Backlog Task To Database
+                        Add Backlog Task
                     </Button>
                 </Box>
             </Modal>
@@ -456,7 +462,11 @@ const ProductBacklogComponent = (props) => {
                                 options={state.projectsList}
                                 getOptionLabel={(option) => option.name}
                                 renderInput={(params) => (
-                                    <TextField {...params} label="Products" variant="outlined" />
+                                    <TextField
+                                        {...params}
+                                        label="Products"
+                                        variant="outlined"
+                                    />
                                 )}
                                 onChange={onProjectSelected}
                                 className="margin-bottom__small"
