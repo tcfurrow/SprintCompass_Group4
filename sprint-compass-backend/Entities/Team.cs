@@ -11,11 +11,11 @@ namespace SprintCompassBackend.Entities
         public string Name { get; set; }
         public List<TeamMember> Members { get; set; }
 
-        public Team(int id, string name, List<TeamMember> members)
+        public Team(int id, string name, List<TeamMember>? members = null)
         {
             Id = id;
             Name = name;
-            Members = members;
+            Members = members ?? new List<TeamMember>();
         }
     }
 }
