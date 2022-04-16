@@ -1,7 +1,7 @@
-﻿using System;
+﻿// File Name:    ProjectTask.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SprintCompassBackend.Entities
 {

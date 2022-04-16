@@ -12,12 +12,12 @@ namespace SprintCompassBackend.Entities
         public User User { get; set; }
 
         private int _roleId = -1;
-        public Role Role
+        public TeamMemberRole Role
         {
             get => _roleId switch
             {
-                1 => Role.TeamMember,
-                2 => Role.ProjectManager,
+                1 => TeamMemberRole.TeamMember,
+                2 => TeamMemberRole.ProjectManager,
                 _ => throw new Exception("Unsupported role id!")
             };
         }

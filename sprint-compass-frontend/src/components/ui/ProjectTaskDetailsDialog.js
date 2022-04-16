@@ -146,7 +146,7 @@ const ProjectTaskDetailsDialog = (props) => {
                                                                     key={`select-menu-item-team-member-${teamMemberIndex}`}
                                                                     value={teamMember.id}
                                                                 >
-                                                                    {`${teamMember.firstName} ${teamMember.lastName}`}
+                                                                    {`${teamMember.user.firstName} ${teamMember.user.lastName}`}
                                                                 </MenuItem>
                                                             ))
                                                         }

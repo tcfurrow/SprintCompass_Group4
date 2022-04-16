@@ -95,7 +95,7 @@ namespace SprintCompassBackend.DataAccessObject
                         TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
                         int teamMemberUserId = resultReader.GetInt32(2);
 
-                        assignedTo = await teamDao.GetTeamMemberByUserId(teamMemberUserId);
+                        assignedTo = await teamDao.GetTeamMemberById(teamMemberUserId);
                     }
 
                     projectSubtasks.Add(new ProjectSubtask(subtaskId, subtaskTitle, assignedTo, subtaskStatus, subtaskTotalHoursWorked, hoursReestimate));
@@ -139,7 +139,7 @@ namespace SprintCompassBackend.DataAccessObject
                     if (teamMemberUserId is not null)
                     {
                         TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
-                        assignedTo = await teamDao.GetTeamMemberByUserId(teamMemberUserId.Value);
+                        assignedTo = await teamDao.GetTeamMemberById(teamMemberUserId.Value);
                     }
 
                     return new ProjectSubtask(subtaskId, title, assignedTo, status, totalHoursWorked, hoursReestimate);

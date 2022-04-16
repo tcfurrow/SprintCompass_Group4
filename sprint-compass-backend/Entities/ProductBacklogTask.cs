@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// File Name:    ProductBacklogTask.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
 
 namespace SprintCompassBackend.Entities
 {

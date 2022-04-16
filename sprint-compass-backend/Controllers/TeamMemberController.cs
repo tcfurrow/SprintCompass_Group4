@@ -1,11 +1,13 @@
 ﻿// File Name:    TeamMemberController.cs
 // By:           Darian Benam, Jordan Fox, and Teresa Furrow
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using SprintCompassBackend.Entities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -34,42 +36,67 @@ namespace SprintCompassBackend.Controllers
             return await teamDao.GetTeamMembersByTeamId(teamId);
         }
 
-        /*[HttpPost("{teamId}")]
+        // Note from Darian: This method does not check if the team member already is added to the team. It would be better to do this.
+        [HttpPost("{teamId}/{userId}/{roleId}")]
         [Produces("application/json")]
-        public async Task<object> AddTeamMember
-        (
-            int teamId,
-            [FromBody]
-            JsonElement requestBodyJson
-        )
+        public async Task<object> AddTeamMember(int teamId, int userId, int roleId)
         {
             TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
-            TeamMember? addedTeamMember = null;
+            TeamMember? addedTeamMember = await teamDao.AddMemberToTeam(teamId, userId, roleId);
 
-            if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement projectInformation))
+            return new
             {
-                _ = projectInformation.TryGetProperty("firstName", out JsonElement firstNameJson);
-                _ = projectInformation.TryGetProperty("lastName", out JsonElement lastNameJson);
-                _ = projectInformation.TryGetProperty("roleId", out JsonElement roleIdJson);
+                TeamMemberAdded = addedTeamMember is not null,
+                AddedTeamMember = addedTeamMember
+            };
+        }
 
-                string firstName = (firstNameJson.GetString() ?? string.Empty).Trim();
-                string lastName = (lastNameJson.GetString() ?? string.Empty).Trim();
-                int roleId;
+        [HttpPut("{teamMemberId}/{roleId}")]
+        [Produces("application/json")]
+        public async Task<object> UpdateTeamMember(int teamMemberId, int roleId)
+        {
+            TeamMemberDao teamMemberDao = new TeamMemberDao(_dbConnCtx, _logger);
 
-                if (!roleIdJson.TryGetInt32(out roleId))
-                {
-                    roleId = -1;
-                }
+            TeamMemberRole teamMemberRole = (TeamMemberRole)roleId;
+            TeamMember? updatedTeamMember = await teamMemberDao.UpdateTeamMember(teamMemberId, teamMemberRole);
 
+            return new
+            {
+                Success = updatedTeamMember is not null,
+                UpdatedTeamMember = updatedTeamMember
+            };
+        }
 
-                teamMemberAdded = await teamDao.AddMemberToTeam(firstName, lastName, roleId);
+        [HttpDelete("{teamMemberId}")]
+        [Produces("application/json")]
+        public async Task<object> DeleteTeamMember(int teamMemberId)
+        {
+            TeamMemberDao teamMemberDao = new TeamMemberDao(_dbConnCtx, _logger);
+
+            bool? hasSubtasks = await teamMemberDao.IsTeamMemberAssignedSubtasks(teamMemberId);
+
+            if (hasSubtasks is null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+
+            string errorMessage = string.Empty;
+            bool teamMemberDeleted = false;
+
+            if (hasSubtasks.Value)
+            {
+                errorMessage = "This team member currently has subtasks assigned to them!";
+            }
+            else
+            {
+                teamMemberDeleted = await teamMemberDao.DeleteTeamMember(teamMemberId);
             }
 
             return new
             {
-                TeamMemberAdded = addedTeamMember is null,
-                AddedTeamMember = addedTeamMember
+                ErrorMessage = errorMessage,
+                TeamMemberDeleted = teamMemberDeleted
             };
-        }*/
+        }
     }
 }

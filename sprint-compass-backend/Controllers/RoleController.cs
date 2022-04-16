@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
+using SprintCompassBackend.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,7 +28,7 @@ namespace SprintCompassBackend.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        public async Task<List<string>> GetRoles()
+        public async Task<List<Role>> GetRoles()
         {
             RoleDao roleDao = new RoleDao(_dbConnCtx, _logger);
             return await roleDao.GetRoles();

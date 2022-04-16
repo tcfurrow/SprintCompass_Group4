@@ -1,4 +1,7 @@
-﻿namespace SprintCompassBackend.Entities
+﻿// File Name:    ProjectSubtask.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+namespace SprintCompassBackend.Entities
 {
     public class ProjectSubtask
     {

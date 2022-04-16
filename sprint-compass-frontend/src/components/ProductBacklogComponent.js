@@ -249,7 +249,6 @@ const ProductBacklogComponent = (props) => {
                     <TextField
                         label="Relative Estimate"
                         onChange={onTaskRelativeEstimateChange}
-                        placeholder="Task relative estimate"
                         className="margin-bottom__small"
                         size="small"
                     />

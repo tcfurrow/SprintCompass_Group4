@@ -82,6 +82,39 @@ namespace SprintCompassBackend.DataAccessObject
             return userList;
         }
 
+        public async Task<User?> GetUserById(int userId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            try
+            {
+                await dbConn.OpenAsync();
+                
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, first_name, last_name FROM user WHERE id = ?userId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?userId", MySqlDbType.VarString).Value = userId;
+
+                await mySqlSelectCmd.ExecuteNonQueryAsync();
+
+                DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
+
+                if (resultReader.HasRows)
+                {
+                    await resultReader.ReadAsync();
+
+                    string firstName = resultReader.GetString(1);
+                    string lastName = resultReader.GetString(2);
+
+                    return new User(userId, firstName, lastName);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<User?> AddUser(string firstName, string lastName)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
