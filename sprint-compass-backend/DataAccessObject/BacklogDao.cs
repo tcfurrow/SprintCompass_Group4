@@ -12,8 +12,6 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 
-#nullable enable
-
 namespace SprintCompassBackend.DataAccessObject
 {
     public class BacklogDao
@@ -25,6 +23,31 @@ namespace SprintCompassBackend.DataAccessObject
         {
             _dbConnCtx = dbConnCtx;
             _logger = logger;
+        }
+
+        public async Task<bool?> IsProductBacklogTaskReferenced(int productBacklogId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT * FROM sprint_user_story WHERE product_backlog_id = ?productBacklogId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?productBacklogId", MySqlDbType.Int32).Value = productBacklogId;
+
+                await mySqlSelectCmd.ExecuteNonQueryAsync();
+
+                DbDataReader resultReader = await mySqlSelectCmd.ExecuteReaderAsync();
+
+                return resultReader.HasRows;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return null;
         }
 
         public async Task<ProductBacklogTask?> AddProjectTask(int projectId, string title, string description, int priority, int relativeEstimate, decimal cost)
@@ -65,7 +88,7 @@ namespace SprintCompassBackend.DataAccessObject
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
-            List<ProductBacklogTask> projectTasks = new List<ProductBacklogTask>();
+            List<ProductBacklogTask> productBacklog = new List<ProductBacklogTask>();
 
             try
             {
@@ -88,15 +111,17 @@ namespace SprintCompassBackend.DataAccessObject
                     int relativeEstimate = resultReader.GetInt32(5);
                     decimal cost = resultReader.GetDecimal(6);
 
-                    projectTasks.Add(new ProductBacklogTask(taskId, title, description, priority, relativeEstimate, cost));
+                    productBacklog.Add(new ProductBacklogTask(taskId, title, description, priority, relativeEstimate, cost));
                 }
+
+                productBacklog.OrderBy(productBacklog => productBacklog.Priority);
             }
             catch (Exception ex)
             {
                 _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
-            return projectTasks;
+            return productBacklog;
         }
 
         public async Task<ProductBacklogTask?> GetProductBacklogTaskById(int productBacklogId)
@@ -133,6 +158,29 @@ namespace SprintCompassBackend.DataAccessObject
             }
 
             return null;
+        }
+
+        public async Task<bool> DeleteProductBacklogTaskById(int productBacklogTaskId)
+        {
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlDeleteCmd = new MySqlCommand("DELETE FROM product_backlog WHERE id = ?productBacklogTaskId;", dbConn);
+                mySqlDeleteCmd.Parameters.Add("?productBacklogTaskId", MySqlDbType.Int32).Value = productBacklogTaskId;
+
+                int totalRowsDeleted = await mySqlDeleteCmd.ExecuteNonQueryAsync();
+
+                return totalRowsDeleted > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return false;
         }
     }
 }

@@ -12,11 +12,11 @@ namespace SprintCompassBackend.Entities
         public decimal Cost { get; set; }
 
         public ProductBacklogTask(int id,
-                           string title,
-                           string description,
-                           int priority,
-                           int relativeEstimate,
-                           decimal cost)
+                                  string title,
+                                  string description,
+                                  int priority,
+                                  int relativeEstimate,
+                                  decimal cost)
         {
             Id = id;
             Title = title;

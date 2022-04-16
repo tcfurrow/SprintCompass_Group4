@@ -41,7 +41,7 @@ namespace SprintCompassBackend.DataAccessObject
                 // Read over every row
                 while (await resultReader.ReadAsync())
                 {
-                    _ = resultReader.GetInt32(0); // Role id
+                    int roleId = resultReader.GetInt32(0);
                     string roleName = resultReader.GetString(1);
 
                     rolesList.Add(roleName);

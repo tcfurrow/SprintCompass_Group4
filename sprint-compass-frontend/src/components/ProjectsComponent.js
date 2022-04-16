@@ -2,6 +2,8 @@
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
 import "../scss/App.scss";
+import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     Autocomplete,
     Button,
@@ -22,14 +24,12 @@ import {
     Typography
 } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
-import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ThemeProvider } from "@mui/material/styles";
-import YesNoDialog from "./ui/YesNoDialog";
-import { httpDelete, httpGet } from "../utils/ApiUtilities";
-import theme from "../theme";
 import { useNavigate } from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
 import moment from "moment";
+import theme from "../theme";
+import { httpDelete, httpGet } from "../utils/ApiUtilities";
+import YesNoDialog from "./ui/YesNoDialog";
 
 const ProjectsComponent = (props) => {
     const navigate = useNavigate();
@@ -136,6 +136,17 @@ const ProjectsComponent = (props) => {
         });
     }
 
+    const onAddTeamMemberButtonClicked = (event) => {
+        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-update"));
+        const projectToUpdate = state.teamProjects.find(project => project.id === projectId);
+
+        navigate("/add_team_member", {
+            state: {
+                project: projectToUpdate
+            }
+        });
+    }
+    
     const onDeleteProjectButtonClicked = (event, projectId) => {
         const projectToDelete = state.teamProjects.find(project => project.id === projectId);
 
@@ -180,10 +191,6 @@ const ProjectsComponent = (props) => {
 
     const onAddProjectButtonClicked = () => {
         navigate("/add_project");
-    }
-
-    const onAddTeamMemberButtonClicked = () => {
-        navigate("/add_team_member");
     }
 
     const renderSelectTeamPage = () => {
@@ -283,6 +290,7 @@ const ProjectsComponent = (props) => {
                                                         >
                                                             <FontAwesomeIcon icon={faTrash} />
                                                         </Button>
+        
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -299,6 +307,7 @@ const ProjectsComponent = (props) => {
                         </div>
                     </div>
                     <div>
+                        
                         <Typography variant="h6" className="margin-bottom__small">Team Members</Typography>
                         {
                             state.teamProjects.length > 0 && state.teamProjects[0].team.members.length > 0

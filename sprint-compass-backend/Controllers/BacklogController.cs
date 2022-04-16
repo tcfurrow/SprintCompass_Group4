@@ -1,12 +1,12 @@
 ﻿// File Name:    BacklogController.cs
 // By:           Darian Benam, Jordan Fox, and Teresa Furrow
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using SprintCompassBackend.Entities;
-using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -107,63 +107,35 @@ namespace SprintCompassBackend.Controllers
             };
         }
 
-        [HttpPut("{projectId}")]
+        [HttpDelete("{productBacklogTaskId}")]
         [Produces("application/json")]
-        public async Task<object?> UpdateProject
-        (
-            int projectId,
-            [FromBody]
-            JsonElement requestBodyJson
-        )
+        public async Task<object> DeleteBacklogTask(int productBacklogTaskId)
         {
-            bool projectUpdated = false;
-            bool hasJsonBody = requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement updateInformation);
+            BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
+            
+            bool? isReferenced = await backlogDao.IsProductBacklogTaskReferenced(productBacklogTaskId);
+            bool productBacklogTaskDeleted = false;
 
-            if (hasJsonBody)
+            if (isReferenced is null)
             {
-                _ = updateInformation.TryGetProperty("projectName", out JsonElement projectNameJson);
-                _ = updateInformation.TryGetProperty("projectDescription", out JsonElement projectDescriptionJson);
-                _ = updateInformation.TryGetProperty("projectStartDate", out JsonElement projectStartDateJson);
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
 
-                ProjectDao projectDao = new ProjectDao(_dbConnCtx, _logger);
-                Project? projectToUpdate = await projectDao.GetProjectById(projectId);
+            string errorMessage = string.Empty;
 
-                if (projectToUpdate is not null)
-                {
-                    projectToUpdate.Name = projectNameJson.GetString() ?? projectToUpdate.Name;
-                    projectToUpdate.Description = projectDescriptionJson.GetString() ?? projectToUpdate.Description;
-
-                    DateTime startDate;
-
-                    if (!projectStartDateJson.TryGetDateTime(out startDate))
-                    {
-                        startDate = default;
-                    }
-
-                    projectToUpdate.StartDate = startDate == default
-                        ? projectToUpdate.StartDate
-                        : startDate;
-
-                    projectUpdated = await projectDao.UpdateProject(projectToUpdate);
-                }
+            if (!isReferenced.Value)
+            {
+                productBacklogTaskDeleted = await backlogDao.DeleteProductBacklogTaskById(productBacklogTaskId);
+            }
+            else
+            {
+                errorMessage = "The product backlog is currently referenced by project tasks!";
             }
 
             return new
             {
-                ProjectUpdated = projectUpdated
-            };
-        }
-
-        [HttpDelete("{projectId}")]
-        [Produces("application/json")]
-        public async Task<object> DeleteProject(int projectId)
-        {
-            ProjectDao projectDao = new ProjectDao(_dbConnCtx, _logger);
-            bool projectedDeleted = await projectDao.DeleteProject(projectId);
-
-            return new
-            {
-                ProjectDeleted = projectedDeleted
+                ErrorMessage = errorMessage,
+                ProductBacklogTaskDeleted = productBacklogTaskDeleted
             };
         }
     }
