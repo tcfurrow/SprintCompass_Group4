@@ -191,12 +191,15 @@ namespace SprintCompassBackend.DataAccessObject
                 // Read over every row
                 while (await resultReader.ReadAsync())
                 {
+                    int teamMemberId = resultReader.GetInt32(0);
                     int userId = resultReader.GetInt32(2);
                     int roleId = resultReader.GetInt32(3);
                     string firstName = resultReader.GetString(4);
                     string lastName = resultReader.GetString(5);
 
-                    teamMemberList.Add(new TeamMember(userId, firstName, lastName, roleId));
+                    User user = new User(userId, firstName, lastName);
+
+                    teamMemberList.Add(new TeamMember(teamMemberId, user, roleId));
                 }
             }
             catch (Exception ex)
@@ -207,7 +210,7 @@ namespace SprintCompassBackend.DataAccessObject
             return teamMemberList;
         }
 
-        public async Task<TeamMember?> GetTeamMemberById(int teamMemberId)
+        public async Task<TeamMember?> GetTeamMemberByUserId(int userId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
 
@@ -215,8 +218,8 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT tml.id, tml.team_id, tml.user_id, tml.role_id, user.first_name, user.last_name FROM team_member_list tml INNER JOIN user ON user.id = ?teamMemberId WHERE tml.user_id = ?teamMemberId;", dbConn);
-                mySqlSelectCmd.Parameters.Add("?teamMemberId", MySqlDbType.Int32).Value = teamMemberId;
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT tml.id, tml.team_id, tml.user_id, tml.role_id, user.first_name, user.last_name FROM team_member_list tml INNER JOIN user ON user.id = ?teamMemberId WHERE tml.user_id = ?userId;", dbConn);
+                mySqlSelectCmd.Parameters.Add("?userId", MySqlDbType.Int32).Value = userId;
 
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
 
@@ -226,11 +229,14 @@ namespace SprintCompassBackend.DataAccessObject
                 {
                     await resultReader.ReadAsync();
 
+                    int teamMemberId = resultReader.GetInt32(0);
                     int roleId = resultReader.GetInt32(3);
                     string firstName = resultReader.GetString(4);
                     string lastName = resultReader.GetString(5);
 
-                    return new TeamMember(teamMemberId, firstName, lastName, roleId);
+                    User user = new User(userId, firstName, lastName);
+
+                    return new TeamMember(teamMemberId, user, roleId);
                 }
             }
             catch (Exception ex)

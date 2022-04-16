@@ -8,8 +8,8 @@ namespace SprintCompassBackend.Entities
     public class TeamMember
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+
+        public User User { get; set; }
 
         private int _roleId = -1;
         public Role Role
@@ -22,11 +22,10 @@ namespace SprintCompassBackend.Entities
             };
         }
 
-        public TeamMember(int id, string firstName, string lastName, int roleId)
+        public TeamMember(int id, User user, int roleId)
         {
             Id = id;
-            FirstName = firstName;
-            LastName = lastName;
+            User = user;
             _roleId = roleId;
         }
     }

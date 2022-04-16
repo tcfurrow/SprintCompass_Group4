@@ -26,9 +26,9 @@ import ViewSprintsComponent from "./components/ViewSprintsComponent";
 import { ThemeProvider } from "@mui/material/styles";
 import { faCompass } from "@fortawesome/free-regular-svg-icons";
 import theme from "./theme";
-import AddTeamMemberComponent from "./components/AddTeamMemberComponent";
 import EditProjectComponent from "./components/EditProjectComponent";
 import UserManagerComponent from "./components/UserManagerComponent";
+import TeamMemberManagerComponent from "./components/TeamMemberManagerComponent";
 
 function App() {
     const initialState = {
@@ -88,14 +88,14 @@ function App() {
                         <MenuItem onClick={handleClose} component={Link} to="/home">
                             Home
                         </MenuItem>
-                        <MenuItem onClick={handleClose} component={Link} to="/projects">
-                            Projects
-                        </MenuItem>
                         <MenuItem onClick={handleClose} component={Link} to="/backlog">
                             Product Backlog
                         </MenuItem>
                         <MenuItem onClick={handleClose} component={Link} to="/user_manager">
                             User Manager
+                        </MenuItem>
+                        <MenuItem onClick={handleClose} component={Link} to="/projects">
+                            Projects
                         </MenuItem>
                     </Menu>
                 </Toolbar>
@@ -107,7 +107,7 @@ function App() {
                 <Route path="/add_project" element={<AddProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/edit_project" element={<EditProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/user_manager" element={<UserManagerComponent showSnackbarMessage={showSnackbarMessage} />} />
-                <Route path="/add_team_member" element={<AddTeamMemberComponent showSnackbarMessage={showSnackbarMessage} />} />
+                <Route path="/team_member_manager" element={<TeamMemberManagerComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/backlog" element={<ProductBacklogComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/view_sprints" element={<ViewSprintsComponent showSnackbarMessage={showSnackbarMessage} />} />
             </Routes>

@@ -28,8 +28,9 @@ import { useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import moment from "moment";
 import theme from "../theme";
-import { httpDelete, httpGet } from "../utils/ApiUtilities";
+import AddTeamMemberDialog from "./ui/AddTeamMemberDialog";
 import YesNoDialog from "./ui/YesNoDialog";
+import { httpDelete, httpGet } from "../utils/ApiUtilities";
 
 const ProjectsComponent = (props) => {
     const navigate = useNavigate();
@@ -41,6 +42,7 @@ const ProjectsComponent = (props) => {
         projectToDelete: null,
         showDeleteProjectWarningDialog: false,
         projectedDeletedSuccessfully: false,
+        showAddTeamMemberDialog: false
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -136,17 +138,6 @@ const ProjectsComponent = (props) => {
         });
     }
 
-    const onAddTeamMemberButtonClicked = (event) => {
-        const projectId = parseInt(event.currentTarget.getAttribute("data-project-id-to-update"));
-        const projectToUpdate = state.teamProjects.find(project => project.id === projectId);
-
-        navigate("/add_team_member", {
-            state: {
-                project: projectToUpdate
-            }
-        });
-    }
-    
     const onDeleteProjectButtonClicked = (event, projectId) => {
         const projectToDelete = state.teamProjects.find(project => project.id === projectId);
 
@@ -191,6 +182,15 @@ const ProjectsComponent = (props) => {
 
     const onAddProjectButtonClicked = () => {
         navigate("/add_project");
+    }
+
+    const onManageTeamMembersButtonClicked = () => {
+        navigate("/team_member_manager", {
+            state: {
+                teamId: state.selectedTeamId,
+                teamName: state.teamList.find(team => team.id === state.selectedTeamId).name
+            }
+        });
     }
 
     const renderSelectTeamPage = () => {
@@ -318,7 +318,7 @@ const ProjectsComponent = (props) => {
                                         state.teamProjects[0].team.members.map((teamMember, index) => (
                                             <ListItem key={`team-member-${index}`}>
                                                 <FontAwesomeIcon icon={faUser} />
-                                                <ListItemText primary={`${teamMember.firstName} ${teamMember.lastName}`} />
+                                                <ListItemText primary={`${teamMember.user.firstName} ${teamMember.user.lastName}`} />
                                             </ListItem>
                                         ))
                                     }
@@ -326,9 +326,9 @@ const ProjectsComponent = (props) => {
                             </List>
                         }
                         <div className="action-buttons-container">
-                            <Button variant="outlined" onClick={onAddTeamMemberButtonClicked}>
+                            <Button variant="outlined" onClick={onManageTeamMembersButtonClicked}>
                                 <FontAwesomeIcon icon={faUserPlus} />
-                                Add Team Member
+                                Manage Members
                             </Button>
                         </div>
                     </div>
@@ -357,6 +357,10 @@ const ProjectsComponent = (props) => {
                 content={`Are you sure you want to delete the project "${state.projectToDelete?.name}" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
                 onYesClicked={onDialogYesButtonClicked}
                 onNoClicked={onDialogNoButtonClicked}
+            />
+            <AddTeamMemberDialog
+                openDialog={state.showAddTeamMemberDialog}
+                onCancel={() => setState({ showAddTeamMemberDialog: false })}
             />
         </ThemeProvider>
     );

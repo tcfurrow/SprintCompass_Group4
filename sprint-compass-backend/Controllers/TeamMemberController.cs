@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using SprintCompassBackend.Entities;
-using System.Text.Json;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SprintCompassBackend.Controllers
@@ -24,6 +24,14 @@ namespace SprintCompassBackend.Controllers
             _logger = logger;
 
             _logger?.LogInformation("A {0} instance has been created!", "TeamMemberController");
+        }
+
+        [HttpGet("{teamId}")]
+        [Produces("application/json")]
+        public async Task<List<TeamMember>> GetTeamMembers(int teamId)
+        {
+            TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
+            return await teamDao.GetTeamMembersByTeamId(teamId);
         }
 
         /*[HttpPost("{teamId}")]
