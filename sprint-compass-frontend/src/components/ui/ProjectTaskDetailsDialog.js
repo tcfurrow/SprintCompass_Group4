@@ -37,11 +37,11 @@ const ProjectTaskDetailsDialog = (props) => {
     const [subtaskToEdit, setSubtaskToEdit] = useState(null);
     const [subtaskToDelete, setSubtaskToDelete] = useState(null);
 
-    const onSubtaskUpdatedFromDialog = (subtaskId, updatedTitle, updatedTotalHoursWorked) => {
+    const onSubtaskUpdatedFromDialog = (subtaskId, updatedTitle, updatedTotalHoursWorked, updatedHoursReestimate) => {
         const subtask = projectTask.subtasks.find(subtask => subtask.id === subtaskId);
         
         if (subtask !== null) {
-            props?.onSubtaskUpdated(subtaskId, updatedTitle, subtask.assignedTo?.id ?? null, subtask.status, updatedTotalHoursWorked);
+            props?.onSubtaskUpdated(subtaskId, updatedTitle, subtask.assignedTo?.id ?? null, subtask.status, updatedTotalHoursWorked, updatedHoursReestimate);
             setSubtaskToEdit(null);
         }
     }
@@ -112,6 +112,9 @@ const ProjectTaskDetailsDialog = (props) => {
                                         <Typography color="common.white" variant="body1">Total Hours Worked</Typography>
                                     </TableCell>
                                     <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                        <Typography color="common.white" variant="body1">Hour(s) Re-estimate</Typography>
+                                    </TableCell>
+                                    <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                         <Typography color="common.white" variant="body1">Actions</Typography>
                                     </TableCell>
                                 </TableRow>
@@ -171,6 +174,9 @@ const ProjectTaskDetailsDialog = (props) => {
                                                 <Typography key={`table-row-subtask-total-hours-worked-${index}`}>{subtask.totalHoursWorked} hour(s)</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
+                                                <Typography key={`table-row-subtask-hours-re-estimate-${index}`}>{subtask.hoursReestimate} hour(s)</Typography>
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
                                                 <div className="flex-gap">
                                                     <Button
                                                         aria-label="Edit Subtask"
@@ -199,7 +205,7 @@ const ProjectTaskDetailsDialog = (props) => {
                         </Table>
                     </TableContainer>
                     <div>
-                        <Typography variant="body1" className="margin-bottom__small">Add New Subtask</Typography>
+                        <Typography variant="body1" className="margin-bottom__xsmall">Add New Subtask</Typography>
                         <div className="flex-gap">
                             <TextField
                                 label="Subtask Name"

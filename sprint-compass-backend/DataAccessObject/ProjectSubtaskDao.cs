@@ -49,7 +49,7 @@ namespace SprintCompassBackend.DataAccessObject
                 {
                     int subtaskId = (int)mySqlInsertCmd.LastInsertedId;
 
-                    return new ProjectSubtask(subtaskId, title, null, SubtaskStatus.Open, 0);
+                    return new ProjectSubtask(subtaskId, title, null, SubtaskStatus.Open, 0.0, 0.0);
                 }
             }
             catch (Exception ex)
@@ -74,7 +74,7 @@ namespace SprintCompassBackend.DataAccessObject
             {
                 await dbConn.OpenAsync();
 
-                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, title, team_member_assigned_to_id, status_id, total_hours_worked FROM sprint_user_story_subtask WHERE sprint_user_story_id = ?projectTaskId;", dbConn);
+                using MySqlCommand mySqlSelectCmd = new MySqlCommand("SELECT id, title, team_member_assigned_to_id, status_id, total_hours_worked, hours_reestimate FROM sprint_user_story_subtask WHERE sprint_user_story_id = ?projectTaskId;", dbConn);
                 mySqlSelectCmd.Parameters.Add("?projectTaskId", MySqlDbType.Int32).Value = projectTaskId;
 
                 await mySqlSelectCmd.ExecuteNonQueryAsync();
@@ -88,6 +88,7 @@ namespace SprintCompassBackend.DataAccessObject
                     TeamMember? assignedTo = null;
                     SubtaskStatus subtaskStatus = (SubtaskStatus)resultReader.GetInt32(3);
                     double subtaskTotalHoursWorked = resultReader.GetDouble(4);
+                    double hoursReestimate = resultReader.GetDouble(5);
 
                     if (!await resultReader.IsDBNullAsync(2))
                     {
@@ -97,7 +98,7 @@ namespace SprintCompassBackend.DataAccessObject
                         assignedTo = await teamDao.GetTeamMemberById(teamMemberId);
                     }
 
-                    projectSubtasks.Add(new ProjectSubtask(subtaskId, subtaskTitle, assignedTo, subtaskStatus, subtaskTotalHoursWorked));
+                    projectSubtasks.Add(new ProjectSubtask(subtaskId, subtaskTitle, assignedTo, subtaskStatus, subtaskTotalHoursWorked, hoursReestimate));
                 }
             }
             catch (Exception ex)
@@ -108,7 +109,7 @@ namespace SprintCompassBackend.DataAccessObject
             return projectSubtasks;
         }
 
-        public async Task<ProjectSubtask?> UpdateProjectSubtask(int subtaskId, string title, int? teamMemberId, SubtaskStatus status, double totalHoursWorked)
+        public async Task<ProjectSubtask?> UpdateProjectSubtask(int subtaskId, string title, int? teamMemberId, SubtaskStatus status, double totalHoursWorked, double hoursReestimate)
         {
             if (subtaskId <= 0 || totalHoursWorked < 0.0)
             {
@@ -127,6 +128,7 @@ namespace SprintCompassBackend.DataAccessObject
                 mySqlUpdateCmd.Parameters.Add("?statusId", MySqlDbType.Int32).Value = status;
                 mySqlUpdateCmd.Parameters.Add("?subtaskId", MySqlDbType.Int32).Value = subtaskId;
                 mySqlUpdateCmd.Parameters.Add("?totalHoursWorked", MySqlDbType.Double).Value = subtaskId;
+                mySqlUpdateCmd.Parameters.Add("?hoursReestimate", MySqlDbType.Double).Value = hoursReestimate;
 
                 int rowsUpdated = await mySqlUpdateCmd.ExecuteNonQueryAsync();
                     
@@ -140,7 +142,7 @@ namespace SprintCompassBackend.DataAccessObject
                         assignedTo = await teamDao.GetTeamMemberById((int)teamMemberId);
                     }
 
-                    return new ProjectSubtask(subtaskId, title, assignedTo, status, totalHoursWorked);
+                    return new ProjectSubtask(subtaskId, title, assignedTo, status, totalHoursWorked, hoursReestimate);
                 }
             }
             catch (Exception ex)

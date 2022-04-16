@@ -18,17 +18,19 @@ const EditSubtaskDialog = (props) => {
     const subtask = props.subtask;
     
     const [subtaskTitle, setSubtaskTitle] = useState("");
-    const [totalHoursWorked, setTotalHoursWorked] = useState(0);
+    const [totalHoursWorked, setTotalHoursWorked] = useState(0.0);
+    const [hoursReestimate, setHoursReestimate] = useState(0.0);
 
     useEffect(() => {
         if (subtask != null) {
             setSubtaskTitle(subtask.title);
             setTotalHoursWorked(subtask.totalHoursWorked);
+            setHoursReestimate(subtask.hoursReestimate);
         }
     }, [ subtask ])
 
     const onUpdateButtonClicked = () => {
-        props?.onUpdate(subtask.id, subtaskTitle, parseFloat(totalHoursWorked));
+        props?.onUpdate(subtask.id, subtaskTitle, parseFloat(totalHoursWorked), parseFloat(hoursReestimate));
     }
 
     return (
@@ -49,12 +51,21 @@ const EditSubtaskDialog = (props) => {
                     value={subtaskTitle}
                     fullWidth
                 />
-                <div>
+                <div className="margin-bottom__small">
                     <Typography variant="body1">Total Hours Worked:</Typography>
                     <Input
                         type="number"
                         onChange={(e) => setTotalHoursWorked(e.target.value)}
                         value={totalHoursWorked}
+                        fullWidth
+                    />
+                </div>
+                <div>
+                    <Typography variant="body1">Hours Re-estimate:</Typography>
+                    <Input
+                        type="number"
+                        onChange={(e) => setHoursReestimate(e.target.value)}
+                        value={hoursReestimate}
                         fullWidth
                     />
                 </div>

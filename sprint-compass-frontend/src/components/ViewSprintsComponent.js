@@ -268,7 +268,7 @@ const ViewSprintsComponent = (props) => {
         }
     }
 
-    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskTeamMemberAssignedTo, subtaskStatus, subtaskTotalHoursWorked) => {
+    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskTeamMemberAssignedTo, subtaskStatus, subtaskTotalHoursWorked, subtaskHoursReestimate) => {
         try {
             props.showSnackbarMessage("Updating subtask...");
             
@@ -276,7 +276,8 @@ const ViewSprintsComponent = (props) => {
                 title: subtaskTitle,
                 assignedTo: subtaskTeamMemberAssignedTo,
                 status: subtaskStatus,
-                totalHoursWorked: subtaskTotalHoursWorked
+                totalHoursWorked: subtaskTotalHoursWorked,
+                hoursReestimate: subtaskHoursReestimate
             };
 
             const updateSubtaskResponse = await httpUpdate(`api/projectsubtask/${subtaskId}`, subtask);

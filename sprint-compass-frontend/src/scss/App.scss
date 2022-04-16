@@ -66,6 +66,10 @@ button {
 }
 
 .margin-bottom {
+    &__xsmall {
+        margin-bottom: 2vh !important;
+    }
+
     &__small {
         margin-bottom: 4vh !important;
     }
