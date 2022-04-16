@@ -50,7 +50,6 @@ const EditProjectComponent = (props) => {
     const onBackButtonClicked = () => {
         navigate("/projects");
     }
-    
 
     const onUpdateProjectButtonClicked = async () => {
         try {
@@ -75,13 +74,8 @@ const EditProjectComponent = (props) => {
     }
 
     return (
-        <div>
         <ThemeProvider theme={theme}>
             <Card>            
-                <Button variant="contained" onClick={onBackButtonClicked} className="margin-bottom__small">
-                    <FontAwesomeIcon icon={faArrowLeft} />
-                    Back
-                </Button>
                 <CardHeader
                     title={
                         location?.state?.project != null
@@ -92,6 +86,10 @@ const EditProjectComponent = (props) => {
                 />
                 <CardContent>
                     <div className="card-content-wrapper">
+                        <Button variant="contained" onClick={onBackButtonClicked} className="margin-bottom__medium">
+                            <FontAwesomeIcon icon={faArrowLeft} />
+                            Go Back
+                        </Button>
                         {
                             location?.state?.project == null // Is null or undefined
                             &&
@@ -124,13 +122,17 @@ const EditProjectComponent = (props) => {
                                         <DesktopDatePicker
                                             label="Project Start Date"
                                             onChange={onProjectStartDateValueChanged}
-                                            renderInput={(props) => <TextField {...props} />}
+                                            renderInput={(props) =>
+                                                <TextField {...props}
+                                                fullWidth
+                                            />}
                                         />
                                     </LocalizationProvider>
                                 </div>
                                 <Button
                                     variant="outlined"
                                     onClick={onUpdateProjectButtonClicked}
+                                    fullWidth
                                 >
                                     <FontAwesomeIcon icon={faUpload} className="margin-right__xsmall" />
                                     Update Project
@@ -141,7 +143,6 @@ const EditProjectComponent = (props) => {
                 </CardContent>
             </Card>
         </ThemeProvider>
-        </div>
     );
 }
 

@@ -65,7 +65,7 @@ const ProjectTaskDetailsDialog = (props) => {
                 teamMemberId = null;
             }
 
-            props?.onSubtaskUpdated(subtaskId, subtask.title, event.target.value, subtask.status, subtask.totalHoursWorked);
+            props?.onSubtaskUpdated(subtaskId, subtask.title, event.target.value, subtask.status, subtask.totalHoursWorked, subtask.hoursReestimate);
         }
     }
 
@@ -73,7 +73,7 @@ const ProjectTaskDetailsDialog = (props) => {
         const subtask = projectTask.subtasks.find(subtask => subtask.id === subtaskId);
 
         if (subtask !== null) {
-            props?.onSubtaskUpdated(subtaskId, subtask.title, subtask.assignedTo?.id ?? null, event.target.value, subtask.totalHoursWorked);
+            props?.onSubtaskUpdated(subtaskId, subtask.title, subtask.assignedTo?.id ?? null, event.target.value, subtask.totalHoursWorked, subtask.hoursReestimate);
         }
     }
 
