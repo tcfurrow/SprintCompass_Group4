@@ -28,15 +28,14 @@ namespace SprintCompassBackend.DataAccessObject
             _logger?.LogInformation("A {0} instance has been created!", "TeamDao");
         }
 
-        public async Task<bool> AddTeam(string teamName)
+        public async Task<Team?> CreateTeam(string teamName)
         {
             if (string.IsNullOrWhiteSpace(teamName))
             {
-                return false;
+                return null;
             }
 
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
-            bool teamAdded = false;
 
             try
             {
@@ -46,14 +45,20 @@ namespace SprintCompassBackend.DataAccessObject
                 mySqlInsertCmd.Parameters.Add("?teamName", MySqlDbType.VarString).Value = teamName;
 
                 int totalRowsAdded = await mySqlInsertCmd.ExecuteNonQueryAsync();
-                teamAdded = totalRowsAdded == 1;
+
+                if (totalRowsAdded == 1)
+                {
+                    int teamId = (int)mySqlInsertCmd.LastInsertedId;
+
+                    return new Team(teamId, teamName);
+                }
             }
             catch (Exception ex)
             {
                 _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
-            return teamAdded;
+            return null;
         }
 
         public async Task<TeamMember?> AddMemberToTeam(int teamId, int userId, int roleId)

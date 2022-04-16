@@ -44,18 +44,20 @@ namespace SprintCompassBackend.Controllers
         )
         {
             TeamDao teamDao = new TeamDao(_dbConnCtx, _logger);
-            bool teamAdded = false;
+            Team? createdTeam = null;
 
             if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement projectInformation))
             {
-                _ = projectInformation.TryGetProperty("projectName", out JsonElement teamNameJson);
+                _ = projectInformation.TryGetProperty("name", out JsonElement teamNameJson);
                 string teamName = teamNameJson.GetString() ?? "";
-                teamAdded = await teamDao.AddTeam(teamName);
+
+                createdTeam = await teamDao.CreateTeam(teamName);
             }
 
             return new
             {
-                TeamAdded = teamAdded
+                Success = createdTeam is not null,
+                Team = createdTeam
             };
         }
     }

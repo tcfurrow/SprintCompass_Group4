@@ -28,9 +28,9 @@ import { useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import moment from "moment";
 import theme from "../theme";
-import AddTeamMemberDialog from "./ui/AddTeamMemberDialog";
+import CreateTeamDialog from "./ui/CreateTeamDialog";
 import YesNoDialog from "./ui/YesNoDialog";
-import { httpDelete, httpGet } from "../utils/ApiUtilities";
+import { httpDelete, httpGet, httpInsert } from "../utils/ApiUtilities";
 
 const ProjectsComponent = (props) => {
     const navigate = useNavigate();
@@ -42,7 +42,7 @@ const ProjectsComponent = (props) => {
         projectToDelete: null,
         showDeleteProjectWarningDialog: false,
         projectedDeletedSuccessfully: false,
-        showAddTeamMemberDialog: false
+        showCreateTeamDialog: false,
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -111,6 +111,29 @@ const ProjectsComponent = (props) => {
         setState({ selectedTeamId: selectedTeam.id });
     }
 
+    const createNewTeam = async (teamName) => {
+        setState({ showCreateTeamDialog: false });
+
+        try {
+            props.showSnackbarMessage(`Creating new team called "${teamName}"...`);
+
+            const teamDetails = {
+                name: teamName
+            };
+
+            const createTeamResponse = await httpInsert("api/team", teamDetails);
+
+            if (createTeamResponse?.success) {
+                const updatedTeamList = [ ...state.teamList, createTeamResponse.team ];
+                setState({ teamList: updatedTeamList });
+            } else {
+                props.showSnackbarMessage("Failed to create team due to server-side issue.")
+            }
+        } catch (error) {
+            props.showSnackbarMessage("An error occurred while attempting to create the team.");
+        }
+    }
+
     const onSelectDifferentTeamButtonClicked = () => {
         setState({
             selectedTeamId: -1,
@@ -161,7 +184,7 @@ const ProjectsComponent = (props) => {
             if (projectDeleted) {
                 props.showSnackbarMessage(`The project "${projectName}" (id: ${projectId}) was deleted successfully!`);
             } else {
-                props.showSnackbarMessage(`Failed to delete the "${projectName}" project (id: ${projectId}).`);
+                props.showSnackbarMessage(`Failed to delete the "${projectName}" project (id: ${projectId}) due to server-side issue.`);
             }
         } catch (error) {
             props.showSnackbarMessage(`An error occurred while attempting to delete the project "${projectName}" project (id: ${projectId}).`);
@@ -209,8 +232,17 @@ const ProjectsComponent = (props) => {
                     )}
                     onChange={onTeamNameSelected}
                     disabled={state.teamList.length === 0}
+                    className="margin-bottom__small"
                     fullWidth
                 />
+                <Typography variant="body1" className="margin-bottom__xsmall">Don't see your team name in the dropdown?</Typography>
+                <Button
+                    variant="outlined"
+                    onClick={() => setState({ showCreateTeamDialog: true })}
+                    fullWidth
+                >
+                    Create New Team
+                </Button>
             </div>
         );
     }
@@ -290,7 +322,6 @@ const ProjectsComponent = (props) => {
                                                         >
                                                             <FontAwesomeIcon icon={faTrash} />
                                                         </Button>
-        
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -351,16 +382,17 @@ const ProjectsComponent = (props) => {
                     </div>
                 </CardContent>
             </Card>
+            <CreateTeamDialog
+                openDialog={state.showCreateTeamDialog}
+                onCreateTeam={createNewTeam}
+                onCancel={() => setState({ showCreateTeamDialog: false })}
+            />
             <YesNoDialog
                 openDialog={state.showDeleteProjectWarningDialog}
                 title="Delete Project Confirmation"
                 content={`Are you sure you want to delete the project "${state.projectToDelete?.name}" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
                 onYesClicked={onDialogYesButtonClicked}
                 onNoClicked={onDialogNoButtonClicked}
-            />
-            <AddTeamMemberDialog
-                openDialog={state.showAddTeamMemberDialog}
-                onCancel={() => setState({ showAddTeamMemberDialog: false })}
             />
         </ThemeProvider>
     );
