@@ -2,6 +2,8 @@
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
 import "../scss/App.scss";
+import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     Autocomplete,
     Button,
@@ -22,14 +24,13 @@ import {
     Typography
 } from "@mui/material";
 import React, { useEffect, useReducer } from "react";
-import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
+import moment from "moment";
+import theme from "../theme";
+import AddTeamMemberDialog from "./ui/AddTeamMemberDialog";
 import YesNoDialog from "./ui/YesNoDialog";
 import { httpDelete, httpGet } from "../utils/ApiUtilities";
-import theme from "../theme";
-import { useNavigate } from "react-router-dom";
-import moment from "moment";
 
 const ProjectsComponent = (props) => {
     const navigate = useNavigate();
@@ -41,6 +42,7 @@ const ProjectsComponent = (props) => {
         projectToDelete: null,
         showDeleteProjectWarningDialog: false,
         projectedDeletedSuccessfully: false,
+        showAddTeamMemberDialog: false
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -182,8 +184,13 @@ const ProjectsComponent = (props) => {
         navigate("/add_project");
     }
 
-    const onAddTeamMemberButtonClicked = () => {
-        navigate("/add_team_member");
+    const onManageTeamMembersButtonClicked = () => {
+        navigate("/team_member_manager", {
+            state: {
+                teamId: state.selectedTeamId,
+                teamName: state.teamList.find(team => team.id === state.selectedTeamId).name
+            }
+        });
     }
 
     const renderSelectTeamPage = () => {
@@ -283,6 +290,7 @@ const ProjectsComponent = (props) => {
                                                         >
                                                             <FontAwesomeIcon icon={faTrash} />
                                                         </Button>
+        
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -299,6 +307,7 @@ const ProjectsComponent = (props) => {
                         </div>
                     </div>
                     <div>
+                        
                         <Typography variant="h6" className="margin-bottom__small">Team Members</Typography>
                         {
                             state.teamProjects.length > 0 && state.teamProjects[0].team.members.length > 0
@@ -309,7 +318,7 @@ const ProjectsComponent = (props) => {
                                         state.teamProjects[0].team.members.map((teamMember, index) => (
                                             <ListItem key={`team-member-${index}`}>
                                                 <FontAwesomeIcon icon={faUser} />
-                                                <ListItemText primary={`${teamMember.firstName} ${teamMember.lastName}`} />
+                                                <ListItemText primary={`${teamMember.user.firstName} ${teamMember.user.lastName}`} />
                                             </ListItem>
                                         ))
                                     }
@@ -317,9 +326,9 @@ const ProjectsComponent = (props) => {
                             </List>
                         }
                         <div className="action-buttons-container">
-                            <Button variant="outlined" onClick={onAddTeamMemberButtonClicked}>
+                            <Button variant="outlined" onClick={onManageTeamMembersButtonClicked}>
                                 <FontAwesomeIcon icon={faUserPlus} />
-                                Add Team Member
+                                Manage Members
                             </Button>
                         </div>
                     </div>
@@ -348,6 +357,10 @@ const ProjectsComponent = (props) => {
                 content={`Are you sure you want to delete the project "${state.projectToDelete?.name}" (id: ${state.projectToDelete?.id})? This operation can not be reversed.`}
                 onYesClicked={onDialogYesButtonClicked}
                 onNoClicked={onDialogNoButtonClicked}
+            />
+            <AddTeamMemberDialog
+                openDialog={state.showAddTeamMemberDialog}
+                onCancel={() => setState({ showAddTeamMemberDialog: false })}
             />
         </ThemeProvider>
     );

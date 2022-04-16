@@ -79,10 +79,12 @@ namespace SprintCompassBackend.Controllers
                 _ = projectInformation.TryGetProperty("assignedTo", out JsonElement assignedToJson);
                 _ = projectInformation.TryGetProperty("status", out JsonElement subtaskStatusJson);
                 _ = projectInformation.TryGetProperty("totalHoursWorked", out JsonElement totalHoursWorkedJson);
+                _ = projectInformation.TryGetProperty("hoursReestimate", out JsonElement hoursReestimateJson);
 
                 string subtaskTitle = subtaskTitleJson.GetString() ?? string.Empty;
                 _ = subtaskStatusJson.TryGetInt32(out int subtaskStatusId);
                 _ = totalHoursWorkedJson.TryGetDouble(out double totalHoursWorked);
+                _ = hoursReestimateJson.TryGetDouble(out double hoursReestimate);
 
                 int? assignedTo = null;
 
@@ -91,7 +93,7 @@ namespace SprintCompassBackend.Controllers
                     assignedTo = teamMemberId;
                 }
 
-                updatedSubtask = await projectSubtaskDao.UpdateProjectSubtask(subtaskId, subtaskTitle, assignedTo, (SubtaskStatus)subtaskStatusId, totalHoursWorked);
+                updatedSubtask = await projectSubtaskDao.UpdateProjectSubtask(subtaskId, subtaskTitle, assignedTo, (SubtaskStatus)subtaskStatusId, totalHoursWorked, hoursReestimate);
             }
 
             return new

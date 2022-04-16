@@ -16,12 +16,10 @@ body, html {
     padding: 0;
 }
 
-.MuiCardContent-root {
-    & button {
-        &:not(.icon-only-button) {
-            & > svg:not(.MuiSvgIcon-root) {
-                margin-right: 0.5em;
-            }
+button {
+    &:not(.icon-only-button) {
+        & > svg:not(.MuiSvgIcon-root) {
+            margin-right: 0.5em;
         }
     }
 }
@@ -68,6 +66,10 @@ body, html {
 }
 
 .margin-bottom {
+    &__xsmall {
+        margin-bottom: 2vh !important;
+    }
+
     &__small {
         margin-bottom: 4vh !important;
     }

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// File Name:    Team.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using System.Collections.Generic;
 
 namespace SprintCompassBackend.Entities
 {
@@ -14,7 +17,5 @@ namespace SprintCompassBackend.Entities
             Name = name;
             Members = members;
         }
-        
-        // TODO: Define field for tracking time by task for team member
     }
 }

@@ -1,8 +1,9 @@
-﻿using System;
+﻿// File Name:    Project.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
-#nullable enable
 
 namespace SprintCompassBackend.Entities
 {

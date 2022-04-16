@@ -22,10 +22,10 @@ import {
     TableRow,
     Typography
 } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
 import { useEffect, useReducer } from "react";
 import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ThemeProvider } from "@mui/material/styles";
 import { httpDelete, httpGet, httpInsert, httpUpdate } from "../utils/ApiUtilities";
 import theme from "../theme";
 import { useLocation } from "react-router-dom";
@@ -268,7 +268,7 @@ const ViewSprintsComponent = (props) => {
         }
     }
 
-    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskTeamMemberAssignedTo, subtaskStatus, subtaskTotalHoursWorked) => {
+    const onSubtaskUpdated = async (subtaskId, subtaskTitle, subtaskTeamMemberAssignedTo, subtaskStatus, subtaskTotalHoursWorked, subtaskHoursReestimate) => {
         try {
             props.showSnackbarMessage("Updating subtask...");
             
@@ -276,7 +276,8 @@ const ViewSprintsComponent = (props) => {
                 title: subtaskTitle,
                 assignedTo: subtaskTeamMemberAssignedTo,
                 status: subtaskStatus,
-                totalHoursWorked: subtaskTotalHoursWorked
+                totalHoursWorked: subtaskTotalHoursWorked,
+                hoursReestimate: subtaskHoursReestimate
             };
 
             const updateSubtaskResponse = await httpUpdate(`api/projectsubtask/${subtaskId}`, subtask);

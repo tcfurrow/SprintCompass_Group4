@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Data.Common;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using SprintCompassBackend.Entities;
 
 namespace SprintCompassBackend.DataAccessObject
 {
@@ -25,9 +26,9 @@ namespace SprintCompassBackend.DataAccessObject
             _logger?.LogInformation("A {0} instance has been created!", "RoleDao");
         }
 
-        public async Task<List<string>> GetRoles()
+        public async Task<List<Role>> GetRoles()
         {
-            List<string> rolesList = new List<string>();
+            List<Role> roleList = new List<Role>();
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
             
             try
@@ -41,10 +42,10 @@ namespace SprintCompassBackend.DataAccessObject
                 // Read over every row
                 while (await resultReader.ReadAsync())
                 {
-                    _ = resultReader.GetInt32(0); // Role id
+                    int roleId = resultReader.GetInt32(0);
                     string roleName = resultReader.GetString(1);
 
-                    rolesList.Add(roleName);
+                    roleList.Add(new Role(roleId, roleName));
                 }
             }
             catch (Exception ex)
@@ -52,7 +53,7 @@ namespace SprintCompassBackend.DataAccessObject
                 _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
             }
 
-            return rolesList;
+            return roleList;
         }
     }
 }

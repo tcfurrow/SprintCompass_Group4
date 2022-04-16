@@ -36,10 +36,10 @@ namespace SprintCompassBackendUnitTests
         public async void TestGetRoles()
         {
             RoleDao roleDao = new RoleDao(new DatabaseConnectionContext(MySqlConnectionString));
-            List<string> roleList = await roleDao.GetRoles();
+            List<Role> roleList = await roleDao.GetRoles();
 
-            Assert.Equal("TeamMember", roleList[0]);
-            Assert.Equal("ProjectManager", roleList[1]);
+            Assert.Equal("TeamMember", roleList[0].Name);
+            Assert.Equal("ProjectManager", roleList[1].Name);
         }
 
         [Fact]
