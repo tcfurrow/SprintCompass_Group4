@@ -69,32 +69,24 @@ namespace SprintCompassBackend.Controllers
                 string title = (titleJson.GetString() ?? string.Empty).Trim();
                 string description = (descriptionJson.GetString() ?? string.Empty).Trim();
 
-                int projectId;
-
-                if (!projectIdJson.TryGetInt32(out projectId))
+                if (!projectIdJson.TryGetInt32(out int projectId))
                 {
                     projectId = -1;
                 }
 
-                int priority;
-
-                if (!priorityJson.TryGetInt32(out priority))
+                if (!priorityJson.TryGetInt32(out int priority))
                 {
                     priority = -1;
                 }
 
-                int relativeEstimate;
-
-                if (!relativeEstimateJson.TryGetInt32(out relativeEstimate))
+                if (!relativeEstimateJson.TryGetInt32(out int relativeEstimate))
                 {
                     relativeEstimate = -1;
                 }
 
-                int cost;
-
-                if (!costJson.TryGetInt32(out cost))
+                if (!costJson.TryGetDecimal(out decimal cost))
                 {
-                    cost = -1;
+                    cost = 0.0m;
                 }
 
                 backlogTask = await backlogDao.AddProjectTask(projectId, title, description, priority, relativeEstimate, cost);
@@ -103,7 +95,7 @@ namespace SprintCompassBackend.Controllers
             return new
             {
                 Error = backlogTask is null,
-                AddedProject = backlogTask
+                BacklogTask = backlogTask
             };
         }
 

@@ -49,6 +49,11 @@ const ProductBacklogComponent = (props) => {
     const reducer = (state, newState) => ({ ...state, ...newState });
     const [state, setState] = useReducer(reducer, initialState);
 
+    const currencyFormatter = new Intl.NumberFormat('en-US', {
+        style: "currency",
+        currency: "USD"
+    });
+
     useEffect(() => {
         (async () => {
             await fetchTeams();
@@ -198,13 +203,16 @@ const ProductBacklogComponent = (props) => {
                 description: state.taskDescription,
                 priority: parseInt(state.taskPriority),
                 relativeEstimate: parseInt(state.taskRelativeEstimate),
-                cost: parseFloat(state.taskCost),
+                cost: parseFloat(state.taskCost)
             };
 
             const addBacklogTaskResponse = await httpInsert("api/backlog", backlogTask);
 
             if (addBacklogTaskResponse !== null && !addBacklogTaskResponse.error) {
-                props.showSnackbarMessage(`Backlog task added successfully (id: ${addBacklogTaskResponse.addedProject.id})!`);
+                props.showSnackbarMessage(`Backlog task added successfully (id: ${addBacklogTaskResponse.backlogTask.id})!`);
+
+                const updatedBacklogList = [ ...state.backlogList, addBacklogTaskResponse.backlogTask ];
+                setState({ backlogList: updatedBacklogList });
 
                 clearInputFields();
                 handleModalClose();
@@ -397,7 +405,7 @@ const ProductBacklogComponent = (props) => {
                                         <Typography>{productBacklog.relativeEstimate}</Typography>
                                     </TableCell>
                                     <TableCell component="th" scope="row">
-                                        <Typography>${productBacklog.cost}</Typography>
+                                        <Typography>{currencyFormatter.format(productBacklog.cost)}</Typography>
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         <div className="flex-gap">
