@@ -189,7 +189,7 @@ const ProductBacklogComponent = (props) => {
             description: "",
             priority: "",
             relativeEstimate: "",
-            cost: "",
+            cost: ""
         });
     }
 
