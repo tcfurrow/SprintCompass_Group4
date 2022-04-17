@@ -358,6 +358,26 @@ const ProductBacklogComponent = (props) => {
         }
     }
 
+    const getTotalCost = () => {
+        let totalCost = 0.0;
+
+        state.backlogList.forEach(backlogTask => {
+            totalCost += backlogTask.cost;
+        });
+
+        return totalCost;
+    }
+
+    const getTotalRelativeEstimate = () => {
+        let totalRelativeEstimate = 0;
+
+        state.backlogList.forEach(backlogTask => {
+            totalRelativeEstimate += backlogTask.relativeEstimate;
+        });
+
+        return totalRelativeEstimate;
+    }
+
     const renderProjectTable = () => {
         return (
             <div>
@@ -452,6 +472,10 @@ const ProductBacklogComponent = (props) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <div className="align-text__left margin-bottom__small">
+                    <Typography><strong>Total Cost:</strong> {currencyFormatter.format(getTotalCost())}</Typography>
+                    <Typography><strong>Total Relative Estimate:</strong> {getTotalRelativeEstimate()}</Typography>
+                </div>
                 <div className="action-buttons-container">
                     <Button variant="outlined" onClick={onAddTaskButtonClicked}>
                         <FontAwesomeIcon icon={faPlus} />
