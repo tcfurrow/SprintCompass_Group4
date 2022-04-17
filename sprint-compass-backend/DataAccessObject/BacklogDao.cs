@@ -160,6 +160,43 @@ namespace SprintCompassBackend.DataAccessObject
             return null;
         }
 
+        public async Task<ProductBacklogTask?> UpdateProductBacklogTask(int productBacklogId, string title, string description, int priority, int relativeEstimate, decimal cost)
+        {
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description) || priority <= 0 || relativeEstimate <= 0 || cost <= -1.0m)
+            {
+                return null;
+            }
+
+            using MySqlConnection dbConn = _dbConnCtx.GetConnection();
+
+            try
+            {
+                await dbConn.OpenAsync();
+
+                using MySqlCommand mySqlUpdateCmd = new MySqlCommand("UPDATE product_backlog SET title = ?title, description = ?description, priority = ?priority, relative_estimate = ?relativeEstimate, cost = ?cost WHERE id = ?productBacklogId;", dbConn);
+                mySqlUpdateCmd.Parameters.Add("?title", MySqlDbType.VarString).Value = title;
+                mySqlUpdateCmd.Parameters.Add("?description", MySqlDbType.VarString).Value = description;
+                mySqlUpdateCmd.Parameters.Add("?priority", MySqlDbType.Int32).Value = priority;
+                mySqlUpdateCmd.Parameters.Add("?relativeEstimate", MySqlDbType.Int32).Value = relativeEstimate;
+                mySqlUpdateCmd.Parameters.Add("?cost", MySqlDbType.Decimal).Value = cost;
+                mySqlUpdateCmd.Parameters.Add("?productBacklogId", MySqlDbType.Int32).Value = productBacklogId;
+
+                int totalRowsUpdated = await mySqlUpdateCmd.ExecuteNonQueryAsync();
+
+                if (totalRowsUpdated == 1)
+                {
+                    return new ProductBacklogTask(productBacklogId, title, description, priority, relativeEstimate, cost);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("An error occurred in {0}: {1}", MethodBase.GetCurrentMethod()?.Name, ex.Message);
+            }
+
+            return null;
+        }
+
         public async Task<bool> DeleteProductBacklogTaskById(int productBacklogTaskId)
         {
             using MySqlConnection dbConn = _dbConnCtx.GetConnection();
