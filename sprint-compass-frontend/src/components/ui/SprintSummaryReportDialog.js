@@ -26,8 +26,6 @@ const SprintSummaryReportDialog = (props) => {
 
     const getPreviousSprint = (sprintId) => {
         const sprintIndex = sprintList.findIndex(sprint => sprint.id === sprintId);
-
-        console.log("hi");
     
         if (sprintIndex - 1 < 0) {
             return null;
@@ -56,7 +54,7 @@ const SprintSummaryReportDialog = (props) => {
 
                 let subtaskSummary = {
                     title: subtask.title,
-                    assignedToName: subtask.assignedTo === null ? "N/A" : `${subtask.assignedTo.user.firstName} ${subtask.assignedTo.user.lastName}`,
+                    assignedToName: subtask.assignedTo === null ? "Unassigned" : `${subtask.assignedTo.user.firstName} ${subtask.assignedTo.user.lastName}`,
                     originalHoursEstimate: previousSubtask?.hoursReestimate ?? "N/A",
                     totalHoursWorked: subtask.totalHoursWorked,
                     reestimateToComplete: subtask.hoursReestimate
@@ -65,7 +63,14 @@ const SprintSummaryReportDialog = (props) => {
                 userStorySummary.subtaskSummary.push(subtaskSummary);
             });
 
-            userStorySummary.originalHoursEstimateTotal = userStorySummary.subtaskSummary.reduce((accumulator, subtaskSummary) => accumulator + subtaskSummary.originalHoursEstimate, 0);
+            userStorySummary.originalHoursEstimateTotal = userStorySummary.subtaskSummary.reduce((accumulator, subtaskSummary) => {
+                if (subtaskSummary.originalHoursEstimate === "N/A") {
+                    return accumulator;
+                }
+
+                return accumulator + subtaskSummary.originalHoursEstimate
+            }, 0);
+            
             userStorySummary.actualHoursWorkedTotal = userStorySummary.subtaskSummary.reduce((accumulator, subtaskSummary) => accumulator + subtaskSummary.totalHoursWorked, 0);
             userStorySummary.reestimateToCompleteTotal = userStorySummary.subtaskSummary.reduce((accumulator, subtaskSummary) => accumulator + subtaskSummary.reestimateToComplete, 0);
 
@@ -79,18 +84,22 @@ const SprintSummaryReportDialog = (props) => {
     const getSprintSummaryOverallTotal = () => {
         const sprintSummary = generateSprintSummary();
 
+        let percentageCompleteTotal = 0.0;
         let originalHoursEstimateTotal = 0.0;
         let actualHoursWorkedTotal = 0.0;
         let reestimateToCompleteTotal = 0.0;
 
-        for (let userStory of sprintSummary) {
-            originalHoursEstimateTotal += userStory.originalHoursEstimateTotal;
-            actualHoursWorkedTotal += userStory.actualHoursWorkedTotal;
-            reestimateToCompleteTotal += userStory.reestimateToCompleteTotal;
+        if (sprintSummary !== null) {
+            for (let userStory of sprintSummary) {
+                percentageCompleteTotal += userStory.percentageComplete;
+                originalHoursEstimateTotal += userStory.originalHoursEstimateTotal;
+                actualHoursWorkedTotal += userStory.actualHoursWorkedTotal;
+                reestimateToCompleteTotal += userStory.reestimateToCompleteTotal;
+            }
         }
 
         return [ {
-            percentageCompleteTotal: 0.0,
+            percentageCompleteTotal: percentageCompleteTotal,
             originalHoursEstimateTotal: originalHoursEstimateTotal,
             actualHoursWorkedTotal: actualHoursWorkedTotal,
             reestimateToCompleteTotal: reestimateToCompleteTotal
@@ -134,22 +143,22 @@ const SprintSummaryReportDialog = (props) => {
                                     <TableRow
                                         key={`sprint-summary-row-${backlogIndex}`}
                                         sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                                        style={{ backgroundColor: theme.palette.common.white }}
+                                        style={{ backgroundColor: theme.palette.primary.main }}
                                     >
                                         <TableCell component="th" scope="row" colSpan={2}>
-                                            <Typography variant="body1" className="align-text__right">{userStorySummary.productBacklogName}</Typography>
+                                            <Typography color="common.white" variant="body1" className="align-text__right">{userStorySummary.productBacklogName}</Typography>
                                         </TableCell>
                                         <TableCell component="th" scope="row">
-                                            <Typography variant="body1" className="align-text__center">Implement This</Typography>
+                                            <Typography color="common.white" variant="body1" className="align-text__center">Implement This</Typography>
                                         </TableCell>
                                         <TableCell component="th" scope="row">
-                                            <Typography variant="body1" className="align-text__center">{userStorySummary.originalHoursEstimateTotal}</Typography>
+                                            <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.originalHoursEstimateTotal}</Typography>
                                         </TableCell>
                                         <TableCell component="th" scope="row">
-                                            <Typography variant="body1" className="align-text__center">{userStorySummary.actualHoursWorkedTotal}</Typography>
+                                            <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.actualHoursWorkedTotal}</Typography>
                                         </TableCell>
                                         <TableCell component="th" scope="row">
-                                            <Typography variant="body1" className="align-text__center">{userStorySummary.reestimateToCompleteTotal}</Typography>
+                                            <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.reestimateToCompleteTotal}</Typography>
                                         </TableCell>
                                     </TableRow>
                                     {
