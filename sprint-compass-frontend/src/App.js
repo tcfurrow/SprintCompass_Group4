@@ -102,7 +102,7 @@ function App() {
             </AppBar>
             <Routes>
                 <Route path="/" element={<HomeComponent />} />
-                <Route path="/home" element={<HomeComponent showSnackbarMessage={showSnackbarMessage} />} />
+                <Route path="/home" element={<HomeComponent />} />
                 <Route path="/projects" element={<ProjectsComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/add_project" element={<AddProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
                 <Route path="/edit_project" element={<EditProjectComponent showSnackbarMessage={showSnackbarMessage} />} />
