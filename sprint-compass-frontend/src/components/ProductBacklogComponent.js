@@ -6,7 +6,7 @@ import { faEdit, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useReducer } from "react";
 import { ThemeProvider } from "@mui/material/styles";
-import { httpDelete, httpGet, httpInsert } from "../utils/ApiUtilities";
+import { httpDelete, httpGet, httpInsert, httpUpdate } from "../utils/ApiUtilities";
 import {
     Autocomplete,
     Box,
@@ -26,6 +26,7 @@ import {
     Typography
 } from "@mui/material";
 import theme from "../theme";
+import EditProductBacklogTaskDialog from "./ui/EditProductBacklogTaskDialog";
 import YesNoDialog from "./ui/YesNoDialog";
 
 const ProductBacklogComponent = (props) => {
@@ -43,6 +44,7 @@ const ProductBacklogComponent = (props) => {
         taskRelativeEstimate: -1,
         taskCost: -1,
         projectId: -1,
+        productBacklogTaskToEdit: null,
         productBacklogTaskToDelete: null
     };
 
@@ -279,18 +281,38 @@ const ProductBacklogComponent = (props) => {
         );
     }
 
-    const onEditProjectButtonClicked = (event) => {
-        // const projectId = parseInt(
-        //   event.currentTarget.getAttribute("data-project-id-to-update")
-        // );
-        // const projectToUpdate = state.teamProjects.find(
-        //   (project) => project.id === projectId
-        // );
-        // navigate("/edit_project", {
-        //   state: {
-        //     project: projectToUpdate,
-        //   },
-        // });
+    const updateProductBacklogTask = async (productBacklogTaskId, priority, title, description, relativeEstimate, cost) => {
+        setState({ productBacklogTaskToEdit: null });
+
+        try {
+            props.showSnackbarMessage(`Updating backlog task with the id of ${productBacklogTaskId}...`);
+
+            const updatedProductBacklogTask = {
+                priority: parseInt(priority),
+                title: title,
+                description: description,
+                relativeEstimate: parseInt(relativeEstimate),
+                cost: parseFloat(cost)
+            };
+
+            const updateBacklogTaskResponse = await httpUpdate(`api/backlog/${productBacklogTaskId}`, updatedProductBacklogTask);
+
+            if (updateBacklogTaskResponse?.success) {
+                props.showSnackbarMessage("The backlog task was updated successfully!");
+
+                let updatedBacklogList = [ ...state.backlogList ];
+                const backlogIndexToUpdate = updatedBacklogList.findIndex(backlogTask => backlogTask.id === productBacklogTaskId);
+
+                if (backlogIndexToUpdate !== -1) {
+                    updatedBacklogList[backlogIndexToUpdate] = updateBacklogTaskResponse.updatedBacklogTask;
+                    setState({ backlogList: updatedBacklogList });
+                }
+            } else {
+                props.showSnackbarMessage("Failed to update backlog task due to a server-side issue.");
+            }
+        } catch (error) {
+            props.showSnackbarMessage("An error occurred while attempting to update the backlog task.");
+        }
     }
 
     const onDeleteProductBacklogTaskButtonClicked = (event, productBacklogId) => {
@@ -308,8 +330,6 @@ const ProductBacklogComponent = (props) => {
 
         try {
             props.showSnackbarMessage(`Deleting product backlog task with the id of ${state.productBacklogTaskToDelete.id})...`);
-
-            console.log("help");
 
             const deleteBacklogTaskResponse = await httpDelete(`api/backlog/${state.productBacklogTaskToDelete.id}`);
 
@@ -333,10 +353,29 @@ const ProductBacklogComponent = (props) => {
             }
         } catch (error) {
             props.showSnackbarMessage("An error occurred while attempting to delete the product backlog task.");
-            console.log(error);
         } finally {
             setState({ productBacklogTaskToDelete: null });
         }
+    }
+
+    const getTotalCost = () => {
+        let totalCost = 0.0;
+
+        state.backlogList.forEach(backlogTask => {
+            totalCost += backlogTask.cost;
+        });
+
+        return totalCost;
+    }
+
+    const getTotalRelativeEstimate = () => {
+        let totalRelativeEstimate = 0;
+
+        state.backlogList.forEach(backlogTask => {
+            totalRelativeEstimate += backlogTask.relativeEstimate;
+        });
+
+        return totalRelativeEstimate;
     }
 
     const renderProjectTable = () => {
@@ -412,7 +451,7 @@ const ProductBacklogComponent = (props) => {
                                             <Button
                                                 aria-label="Edit Product Backlog Task"
                                                 title="Edit Product Backlog Task"
-                                                onClick={onEditProjectButtonClicked}
+                                                onClick={() => setState({ productBacklogTaskToEdit: state.backlogList.find(backlogTask => backlogTask.id === productBacklog.id) })}
                                                 variant="outlined"
                                                 className="icon-only-button"
                                             >
@@ -433,6 +472,10 @@ const ProductBacklogComponent = (props) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <div className="align-text__left margin-bottom__small">
+                    <Typography><strong>Total Cost:</strong> {currencyFormatter.format(getTotalCost())}</Typography>
+                    <Typography><strong>Total Relative Estimate:</strong> {getTotalRelativeEstimate()}</Typography>
+                </div>
                 <div className="action-buttons-container">
                     <Button variant="outlined" onClick={onAddTaskButtonClicked}>
                         <FontAwesomeIcon icon={faPlus} />
@@ -485,6 +528,12 @@ const ProductBacklogComponent = (props) => {
                     </div>
                 </CardContent>
             </Card>
+            <EditProductBacklogTaskDialog
+                openDialog={state.productBacklogTaskToEdit !== null}
+                productBacklogTask={state.productBacklogTaskToEdit}
+                onUpdate={updateProductBacklogTask}
+                onCancel={() => setState({ productBacklogTaskToEdit: null })}
+            />
             <YesNoDialog
                 openDialog={state.productBacklogTaskToDelete !== null}
                 title="Delete Product Backlog Confirmation"

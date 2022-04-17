@@ -39,7 +39,7 @@ namespace SprintCompassBackend.Controllers
 
         [HttpPost]
         [Produces("application/json")]
-        public async Task<object?> AddBacklogTask
+        public async Task<object> AddBacklogTask
         (
             [FromBody]
             JsonElement requestBodyJson
@@ -99,6 +99,54 @@ namespace SprintCompassBackend.Controllers
             };
         }
 
+        [HttpPut("{productBacklogTaskId}")]
+        [Produces("application/json")]
+        public async Task<object> UpdateBacklogTask
+        (
+            int productBacklogTaskId,
+            [FromBody]
+            JsonElement requestBodyJson
+        )
+        {
+            BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
+            ProductBacklogTask? updatedBacklogTask = null;
+
+            if (requestBodyJson.TryGetProperty("jsonRequestBody", out JsonElement backlogTaskInformation))
+            {
+                _ = backlogTaskInformation.TryGetProperty("title", out JsonElement titleJson);
+                _ = backlogTaskInformation.TryGetProperty("description", out JsonElement descriptionJson);
+                _ = backlogTaskInformation.TryGetProperty("priority", out JsonElement priorityJson);
+                _ = backlogTaskInformation.TryGetProperty("relativeEstimate", out JsonElement relativeEstimateJson);
+                _ = backlogTaskInformation.TryGetProperty("cost", out JsonElement costJson);
+
+                string title = titleJson.GetString() ?? string.Empty;
+                string description = descriptionJson.GetString() ?? string.Empty;
+                
+                if (!priorityJson.TryGetInt32(out int priority))
+                {
+                    priority = -1;
+                }
+
+                if (!relativeEstimateJson.TryGetInt32(out int relativeEstimate))
+                {
+                    relativeEstimate = -1;
+                }
+
+                if (!costJson.TryGetDecimal(out decimal cost))
+                {
+                    cost = -1.0m;
+                }
+
+                updatedBacklogTask = await backlogDao.UpdateProductBacklogTask(productBacklogTaskId, title, description, priority, relativeEstimate, cost);
+            }
+
+            return new
+            {
+                Success = updatedBacklogTask is not null,
+                UpdatedBacklogTask = updatedBacklogTask
+            };
+        }
+
         [HttpDelete("{productBacklogTaskId}")]
         [Produces("application/json")]
         public async Task<object> DeleteBacklogTask(int productBacklogTaskId)
@@ -106,13 +154,13 @@ namespace SprintCompassBackend.Controllers
             BacklogDao backlogDao = new BacklogDao(_dbConnCtx, _logger);
             
             bool? isReferenced = await backlogDao.IsProductBacklogTaskReferenced(productBacklogTaskId);
-            bool productBacklogTaskDeleted = false;
 
             if (isReferenced is null)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
+            bool productBacklogTaskDeleted = false;
             string errorMessage = string.Empty;
 
             if (!isReferenced.Value)
