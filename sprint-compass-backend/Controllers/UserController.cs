@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// File Name:    UserController.cs
+// By:           Darian Benam, Jordan Fox, and Teresa Furrow
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
@@ -85,7 +88,7 @@ namespace SprintCompassBackend.Controllers
             }
             else
             {
-                errorMessage = "Unabel to delete the user because they are currently active in one or more teams!";
+                errorMessage = "Unable to delete the user because they are currently active in one or more teams!";
             }
 
             return new

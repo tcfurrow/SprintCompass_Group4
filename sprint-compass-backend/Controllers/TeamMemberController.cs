@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
 using SprintCompassBackend.DataAccessObject;
 using SprintCompassBackend.Entities;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
