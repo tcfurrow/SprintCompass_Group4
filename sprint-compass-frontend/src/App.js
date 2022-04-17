@@ -32,7 +32,6 @@ import TeamMemberManagerComponent from "./components/TeamMemberManagerComponent"
 
 function App() {
     const initialState = {
-        msg: "",
         anchorEl: null,
         snackBarMessage: "",
         showSnackbar: false
