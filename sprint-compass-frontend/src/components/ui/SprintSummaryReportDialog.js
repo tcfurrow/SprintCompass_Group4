@@ -1,7 +1,9 @@
 // File Name:    ProjectTaskDetailsDialog.js
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
+import autoTable from "jspdf-autotable";
 import DialogSlideTransition from "./effects/DialogSlideTransition";
+import { jsPDF } from "jspdf";
 import {
     Button,
     Dialog,
@@ -117,6 +119,19 @@ const SprintSummaryReportDialog = (props) => {
         } ];
     }
 
+    const onExportToPdfButtonClicked = () => {
+        console.log("test");
+
+        const summaryReportPdf = new jsPDF();
+        const sprintSummaryTableElement = document.getElementById("sprint-summary-report-table")
+        
+        if (sprintSummaryTableElement !== null) {
+            summaryReportPdf.text(`Sprint Summary Report - ${selectedSprint.name}`, 10, 10);
+            summaryReportPdf.autoTable({ html: "#sprint-summary-report-table" })
+            summaryReportPdf.save("sprint_summary_report.pdf");
+        }
+    }
+
     return (
         <Dialog
             open={props?.openDialog}
@@ -129,17 +144,20 @@ const SprintSummaryReportDialog = (props) => {
             <DialogContent className="padding__small">
                 <Button
                     variant="outlined"
-                    onClick={() => alert("Not implemented yet.")}
+                    onClick={onExportToPdfButtonClicked}
                     className="margin-bottom__small"
                 >
                     Export to PDF
                 </Button>
                 <TableContainer component={Paper} style={{ minHeight: 300, maxHeight: 600 }} className="team-project-table subtle-shadow margin-bottom__small">
-                    <Table aria-label="Sprint Summary Report" stickyHeader>
+                    <Table id="sprint-summary-report-table" aria-label="Sprint Summary Report" stickyHeader>
                         <TableHead>
                             <TableRow>
-                                <TableCell style={{ backgroundColor: theme.palette.primary.main }} colSpan={2}>
+                                <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                     <Typography color="common.white" variant="body1" className="align-text__center">User Stories/Sub-tasks</Typography>
+                                </TableCell>
+                                <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                    {/* Left empty on purpose. */}
                                 </TableCell>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                     <Typography color="common.white" variant="body1" className="align-text__center">Percentage Complete</Typography>
@@ -163,8 +181,11 @@ const SprintSummaryReportDialog = (props) => {
                                         sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                                         style={{ backgroundColor: theme.palette.primary.main }}
                                     >
-                                        <TableCell component="th" scope="row" colSpan={2}>
+                                        <TableCell component="th" scope="row">
                                             <Typography color="common.white" variant="body1" className="align-text__right">{userStorySummary.productBacklogName}</Typography>
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {/* Left empty on purpose. */}
                                         </TableCell>
                                         <TableCell component="th" scope="row">
                                             <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.percentageCompleteTotal.toFixed(0)}%</Typography>
@@ -215,8 +236,11 @@ const SprintSummaryReportDialog = (props) => {
                             {
                                 getSprintSummaryOverallTotal()?.map((overallTotal, overallTotalIndex) => (
                                     <TableRow>
-                                        <TableCell colSpan={2}>
+                                        <TableCell>
                                             <Typography color="common.black" variant="body1" className="align-text__left" strong><strong>Total</strong></Typography>
+                                        </TableCell>
+                                        <TableCell component="th" scope="row">
+                                            {/* Left empty on purpose. */}
                                         </TableCell>
                                         <TableCell>
                                             <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.percentageCompleteTotal.toFixed(0)}%</Typography>
