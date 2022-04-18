@@ -31,6 +31,7 @@ import theme from "../theme";
 import { useLocation } from "react-router-dom";
 import CreateNewProjectTaskDialog from "./ui/CreateNewProjectTaskDialog";
 import ProjectTaskDetailsDialog from "./ui/ProjectTaskDetailsDialog";
+import SprintSummaryReportDialog from "./ui/SprintSummaryReportDialog";
 
 const ViewSprintsComponent = (props) => {
     const location = useLocation();
@@ -43,7 +44,8 @@ const ViewSprintsComponent = (props) => {
         showCreateNewSprintDialog: false,
         showCreateNewProjectTaskDialog: false,
         showProjectTaskDetailsDialog: false,
-        showDeleteSprintWarningDialog: false
+        showDeleteSprintWarningDialog: false,
+        showSprintSummaryReportDialog: false
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -505,7 +507,20 @@ const ViewSprintsComponent = (props) => {
                                             >
                                                 Create New Task
                                             </Button>
-                                            <Button variant="outlined" className="auto-width-big-screens margin-bottom__small" onClick={onDeleteSprintButtonClicked}>Delete Sprint</Button>
+                                            <Button
+                                                variant="outlined"
+                                                className="auto-width-big-screens margin-bottom__small"
+                                                onClick={onDeleteSprintButtonClicked}
+                                            >
+                                                Delete Sprint
+                                            </Button>
+                                            <Button
+                                                variant="outlined"
+                                                className="auto-width-big-screens margin-bottom__small"
+                                                onClick={() => setState({ showSprintSummaryReportDialog: true })}
+                                            >
+                                                View Sprint Summary Report
+                                            </Button>
                                         </div>
                                     }
                                 </div>
@@ -533,6 +548,12 @@ const ViewSprintsComponent = (props) => {
                 onDeleteSubtask={onDeleteSubtask}
                 onCreateNewSubtaskClicked={createNewSubtask}
                 onCloseClicked={() => setState({ showProjectTaskDetailsDialog: false })}
+            />
+            <SprintSummaryReportDialog
+                openDialog={state.showSprintSummaryReportDialog}
+                sprintList={state.sprints}
+                selectedSprint={state.selectedSprint}
+                onClose={() => setState({ showSprintSummaryReportDialog: false })}
             />
             <YesNoDialog
                 openDialog={state.showDeleteSprintWarningDialog}
