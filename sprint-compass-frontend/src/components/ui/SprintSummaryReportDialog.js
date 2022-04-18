@@ -74,6 +74,14 @@ const SprintSummaryReportDialog = (props) => {
             userStorySummary.actualHoursWorkedTotal = userStorySummary.subtaskSummary.reduce((accumulator, subtaskSummary) => accumulator + subtaskSummary.totalHoursWorked, 0);
             userStorySummary.reestimateToCompleteTotal = userStorySummary.subtaskSummary.reduce((accumulator, subtaskSummary) => accumulator + subtaskSummary.reestimateToComplete, 0);
 
+            userStorySummary.percentageCompleteTotal = userStorySummary.actualHoursWorkedTotal / (userStorySummary.actualHoursWorkedTotal + userStorySummary.reestimateToCompleteTotal);
+
+            if (isNaN(userStorySummary.percentageCompleteTotal)) {
+                userStorySummary.percentageCompleteTotal = 0;
+            } else {
+                userStorySummary.percentageCompleteTotal *= 100.0;
+            }
+
             sprintSummaryReport.push(userStorySummary);
         });
 
@@ -84,6 +92,7 @@ const SprintSummaryReportDialog = (props) => {
     const getSprintSummaryOverallTotal = () => {
         const sprintSummary = generateSprintSummary();
 
+        let totalUserStories = 0;
         let percentageCompleteTotal = 0.0;
         let originalHoursEstimateTotal = 0.0;
         let actualHoursWorkedTotal = 0.0;
@@ -91,15 +100,17 @@ const SprintSummaryReportDialog = (props) => {
 
         if (sprintSummary !== null) {
             for (let userStory of sprintSummary) {
-                percentageCompleteTotal += userStory.percentageComplete;
+                percentageCompleteTotal += userStory.percentageCompleteTotal;
                 originalHoursEstimateTotal += userStory.originalHoursEstimateTotal;
                 actualHoursWorkedTotal += userStory.actualHoursWorkedTotal;
                 reestimateToCompleteTotal += userStory.reestimateToCompleteTotal;
+
+                totalUserStories++;
             }
         }
 
         return [ {
-            percentageCompleteTotal: percentageCompleteTotal,
+            percentageCompleteTotal: totalUserStories > 0 ? percentageCompleteTotal / totalUserStories : 0,
             originalHoursEstimateTotal: originalHoursEstimateTotal,
             actualHoursWorkedTotal: actualHoursWorkedTotal,
             reestimateToCompleteTotal: reestimateToCompleteTotal
@@ -116,6 +127,13 @@ const SprintSummaryReportDialog = (props) => {
         >
             <DialogTitle>Project Team Name: {selectedSprint?.project.team.name}</DialogTitle>
             <DialogContent className="padding__small">
+                <Button
+                    variant="outlined"
+                    onClick={() => alert("Not implemented yet.")}
+                    className="margin-bottom__small"
+                >
+                    Export to PDF
+                </Button>
                 <TableContainer component={Paper} style={{ minHeight: 300, maxHeight: 600 }} className="team-project-table subtle-shadow margin-bottom__small">
                     <Table aria-label="Sprint Summary Report" stickyHeader>
                         <TableHead>
@@ -149,7 +167,7 @@ const SprintSummaryReportDialog = (props) => {
                                             <Typography color="common.white" variant="body1" className="align-text__right">{userStorySummary.productBacklogName}</Typography>
                                         </TableCell>
                                         <TableCell component="th" scope="row">
-                                            <Typography color="common.white" variant="body1" className="align-text__center">Implement This</Typography>
+                                            <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.percentageCompleteTotal.toFixed(0)}%</Typography>
                                         </TableCell>
                                         <TableCell component="th" scope="row">
                                             <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.originalHoursEstimateTotal}</Typography>
@@ -201,7 +219,7 @@ const SprintSummaryReportDialog = (props) => {
                                             <Typography color="common.black" variant="body1" className="align-text__left" strong><strong>Total</strong></Typography>
                                         </TableCell>
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.percentageCompleteTotal}%</Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.percentageCompleteTotal.toFixed(0)}%</Typography>
                                         </TableCell>
                                         <TableCell>
                                             <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.originalHoursEstimateTotal}</Typography>
