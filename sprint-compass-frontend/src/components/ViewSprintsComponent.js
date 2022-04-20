@@ -226,7 +226,7 @@ const ViewSprintsComponent = (props) => {
     }
 
     // NOTE: This button is defined in the ProjectTaskDetailsDialog component
-    const createNewSubtask = async (subtaskTitle) => {
+    const createNewSubtask = async (sprintId, projectId, parentProductBacklogTaskId, subtaskTitle, subtaskInitialHoursEstimate) => {
         if (state.selectedUserStory === null) {
             return;
         }
@@ -235,8 +235,12 @@ const ViewSprintsComponent = (props) => {
             props.showSnackbarMessage("Creating new subtask...");
 
             const subtask = {
+                sprintId: parseInt(sprintId),
+                projectId: parseInt(projectId),
+                parentProductBacklogId: parseInt(parentProductBacklogTaskId),
                 userStoryId: state.selectedUserStory.id,
-                subtaskTitle: subtaskTitle
+                title: subtaskTitle,
+                initialHoursEstimate: parseFloat(subtaskInitialHoursEstimate)
             };
 
             const createSubtaskResponse = await httpInsert(`api/projectsubtask`, subtask);
@@ -542,6 +546,7 @@ const ViewSprintsComponent = (props) => {
             />
             <ProjectTaskDetailsDialog
                 openDialog={state.showProjectTaskDetailsDialog}
+                projectId={state?.selectedSprint?.project?.id}
                 projectTask={state.selectedUserStory}
                 teamMemberList={state?.selectedSprint?.project?.team?.members}
                 onSubtaskUpdated={onSubtaskUpdated}

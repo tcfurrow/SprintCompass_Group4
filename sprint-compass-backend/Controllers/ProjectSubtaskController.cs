@@ -1,6 +1,7 @@
 ﻿// File Name:    ProjectSubtaskController.cs
 // By:           Darian Benam, Jordan Fox, and Teresa Furrow
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SprintCompassBackend.DataAccessLayer;
@@ -40,17 +41,41 @@ namespace SprintCompassBackend.Controllers
             {
                 ProjectSubtaskDao projectSubtaskDao = new ProjectSubtaskDao(_dbConnCtx, _logger);
 
+                _ = projectInformation.TryGetProperty("sprintId", out JsonElement sprintIdJson);
+                _ = projectInformation.TryGetProperty("projectId", out JsonElement projectIdJson);
+                _ = projectInformation.TryGetProperty("parentProductBacklogId", out JsonElement parentProductBacklogIdJson);
                 _ = projectInformation.TryGetProperty("userStoryId", out JsonElement userStoryIdJson);
-                _ = projectInformation.TryGetProperty("subtaskTitle", out JsonElement subtaskTitleJson);
+                _ = projectInformation.TryGetProperty("title", out JsonElement subtaskTitleJson);
+                _ = projectInformation.TryGetProperty("initialHoursEstimate", out JsonElement subtaskInitialHoursEstimateJson);
+
+                if (!sprintIdJson.TryGetInt32(out int sprintId))
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                }
+
+                if (!projectIdJson.TryGetInt32(out int projectId))
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                }
+
+                if (!parentProductBacklogIdJson.TryGetInt32(out int parentProductBacklogId))
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                }
 
                 if (!userStoryIdJson.TryGetInt32(out int userStoryId))
                 {
-                    userStoryId = -1;
+                    return StatusCode(StatusCodes.Status500InternalServerError);
                 }
 
                 string subtaskTitle = subtaskTitleJson.GetString() ?? string.Empty;
 
-                subtask = await projectSubtaskDao.CreateSubtask(userStoryId, subtaskTitle);
+                if (!subtaskInitialHoursEstimateJson.TryGetDouble(out double subtaskInitialHoursEstimate))
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                }
+
+                subtask = await projectSubtaskDao.CreateSubtask(sprintId, projectId, parentProductBacklogId, userStoryId, subtaskTitle, subtaskInitialHoursEstimate);
             }
 
             return new

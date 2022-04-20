@@ -9,6 +9,7 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
+    Input,
     InputLabel,
     MenuItem,
     Paper,
@@ -30,12 +31,15 @@ import EditSubtaskDialog from "./EditSubtaskDialog";
 import YesNoDialog from "./YesNoDialog";
 
 const ProjectTaskDetailsDialog = (props) => {
+    const projectId = props.projectId;
     const projectTask = props.projectTask;
     const teamMemberList = props.teamMemberList;
 
     const [newSubtaskName, setNewSubtaskName] = useState("");
+    const [newSubtaskInitialHoursEstimate, setNewSubtaskInitialHoursEstimate] = useState(0.0);
     const [subtaskToEdit, setSubtaskToEdit] = useState(null);
     const [subtaskToDelete, setSubtaskToDelete] = useState(null);
+    const [newSubtaskNameAlreadyExists, setNewSubtaskNameAlreadyExists] = useState(false);
 
     const onSubtaskUpdatedFromDialog = (subtaskId, updatedTitle, updatedTotalHoursWorked, updatedHoursReestimate) => {
         const subtask = projectTask.subtasks.find(subtask => subtask.id === subtaskId);
@@ -47,12 +51,18 @@ const ProjectTaskDetailsDialog = (props) => {
     }
 
     const onCreateNewSubtaskClicked = () => {
-        if (newSubtaskName.trim().length === 0) {
+        const subtaskAlreadyExists = getExistingSubtaskByTitle(newSubtaskName) !== null;
+
+        setNewSubtaskNameAlreadyExists(subtaskAlreadyExists);
+
+        if (projectTask === null || newSubtaskName.trim().length === 0 || newSubtaskInitialHoursEstimate <= 0.0 || subtaskAlreadyExists) {
             return;
         }
 
-        props?.onCreateNewSubtaskClicked(newSubtaskName);
+        props?.onCreateNewSubtaskClicked(projectTask.sprintId, projectId, projectTask.parentProductBacklogTask.id, newSubtaskName, newSubtaskInitialHoursEstimate);
+
         setNewSubtaskName("");
+        setNewSubtaskInitialHoursEstimate(0.0);
     }
 
     const onSubtaskTeamMemberAssignedToUpdated = (event, subtaskId) => {
@@ -82,6 +92,22 @@ const ProjectTaskDetailsDialog = (props) => {
         setSubtaskToDelete(null);
     }
 
+    const onNewSubtaskNameChanged = (event) => {
+        setNewSubtaskName(event.target.value);
+        setNewSubtaskNameAlreadyExists(false);
+    }
+
+    const getExistingSubtaskByTitle = (title) => {
+        return projectTask?.subtasks.find(subtask => subtask.title.toLowerCase().trim() === title.toLowerCase().trim()) ?? null;
+    }
+
+    const onCloseButtonClicked = () => {
+        setNewSubtaskName("");
+        setNewSubtaskInitialHoursEstimate(0.0);
+
+        props?.onCloseClicked();
+    }
+
     return (
         <div>
             <Dialog
@@ -107,6 +133,9 @@ const ProjectTaskDetailsDialog = (props) => {
                                     </TableCell>
                                     <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                         <Typography color="common.white" variant="body1">Status</Typography>
+                                    </TableCell>
+                                    <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
+                                        <Typography color="common.white" variant="body1">Hour(s) Estimate</Typography>
                                     </TableCell>
                                     <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                         <Typography color="common.white" variant="body1">Total Hours Worked</Typography>
@@ -171,6 +200,9 @@ const ProjectTaskDetailsDialog = (props) => {
                                                 </FormControl>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
+                                                <Typography key={`table-row-subtask-hours-estimate-${index}`}>{subtask.initialHoursEstimate} hour(s)</Typography>
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
                                                 <Typography key={`table-row-subtask-total-hours-worked-${index}`}>{subtask.totalHoursWorked} hour(s)</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
@@ -211,23 +243,35 @@ const ProjectTaskDetailsDialog = (props) => {
                                 label="Subtask Name"
                                 size="small"
                                 variant="outlined"
-                                onChange={(e) => setNewSubtaskName(e.target.value)}
+                                onChange={onNewSubtaskNameChanged}
                                 value={newSubtaskName}
+                                fullWidth
+                            />
+                            <Input
+                                placeholder="Initial Hours Estimate"
+                                type="number"
+                                onChange={(e) => setNewSubtaskInitialHoursEstimate(e.target.value)}
+                                value={newSubtaskInitialHoursEstimate}
                                 fullWidth
                             />
                             <Button
                                 onClick={onCreateNewSubtaskClicked}
                                 variant="outlined"
-                                style={{ width: "22rem" }}
-                                disabled={newSubtaskName.trim().length === 0}
+                                style={{ width: "30rem" }}
+                                disabled={newSubtaskName.trim().length === 0 || newSubtaskInitialHoursEstimate <= 0.0 || newSubtaskNameAlreadyExists}
                             >
                                 Create Sub-task
                             </Button>
                         </div>
+                        {
+                            newSubtaskNameAlreadyExists
+                            &&
+                            <Typography className="margin-top__small">ERROR: The subtask you have entered already exists in this user story!</Typography>
+                        }
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={props?.onCloseClicked}>Close</Button>
+                    <Button onClick={onCloseButtonClicked}>Close</Button>
                 </DialogActions>
             </Dialog>
             <EditSubtaskDialog
