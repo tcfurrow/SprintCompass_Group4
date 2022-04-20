@@ -120,14 +120,60 @@ const SprintSummaryReportDialog = (props) => {
     }
 
     const onExportToPdfButtonClicked = () => {
-        console.log("test");
-
         const summaryReportPdf = new jsPDF();
         const sprintSummaryTableElement = document.getElementById("sprint-summary-report-table")
         
         if (sprintSummaryTableElement !== null) {
-            summaryReportPdf.text(`Sprint Summary Report - ${selectedSprint.name}`, 10, 10);
-            summaryReportPdf.autoTable({ html: "#sprint-summary-report-table" })
+            let headerText = summaryReportPdf.splitTextToSize(`Sprint Summary Report - ${selectedSprint.name}`, 180);
+            summaryReportPdf.text(10, 10, headerText);
+
+            headerText = summaryReportPdf.splitTextToSize(`Project Team Name: ${selectedSprint.project.team.name}`, 180);
+            summaryReportPdf.text(10, 20, headerText);
+
+            summaryReportPdf.autoTable({
+                html: "#sprint-summary-report-table",
+                startY: 40,
+                headStyles: {
+                    fillColor: [ 147, 63, 181 ],
+                    valign: "middle",
+                    halign: "center"
+                },
+                columnStyles: {
+                    0: {
+                        halign: "right"
+                    },
+                    1: {
+                        halign: "center"
+                    },
+                    2: {
+                        halign: "center"
+                    },
+                    3: {
+                        halign: "center"
+                    },
+                    4: {
+                        halign: "center"
+                    },
+                    5: {
+                        halign: "center"
+                    }
+                },
+                footStyles: {
+                    fillColor: [ 147, 63, 181 ],
+                    halign: "center",
+                    valign: "middle"
+                },
+                didParseCell: (hookData) => {
+                    if (hookData.section === "body" && hookData.cell.raw.dataset?.isSubheader === "true") {
+                        hookData.cell.styles.fontStyle = "bold";
+                    }
+
+                    if (hookData.section === "foot" && hookData.column.index === 0) {
+                        hookData.cell.styles.halign = "left";
+                    }
+                }
+            });
+
             summaryReportPdf.save("sprint_summary_report.pdf");
         }
     }
@@ -154,22 +200,22 @@ const SprintSummaryReportDialog = (props) => {
                         <TableHead>
                             <TableRow>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                    <Typography color="common.white" variant="body1" className="align-text__center">User Stories/Sub-tasks</Typography>
+                                    <Typography color="common.white" variant="body1" className="align-text__center"><strong>User Stories/Sub-tasks</strong></Typography>
                                 </TableCell>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
                                     {/* Left empty on purpose. */}
                                 </TableCell>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                    <Typography color="common.white" variant="body1" className="align-text__center">Percentage Complete</Typography>
+                                    <Typography color="common.white" variant="body1" className="align-text__center"><strong>Percentage Complete</strong></Typography>
                                 </TableCell>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                    <Typography color="common.white" variant="body1" className="align-text__center">Original Hours Estimate</Typography>
+                                    <Typography color="common.white" variant="body1" className="align-text__center"><strong>Original Hours Estimate</strong></Typography>
                                 </TableCell>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                    <Typography color="common.white" variant="body1" className="align-text__center">Actual Hours Worked</Typography>
+                                    <Typography color="common.white" variant="body1" className="align-text__center"><strong>Actual Hours Worked</strong></Typography>
                                 </TableCell>
                                 <TableCell style={{ backgroundColor: theme.palette.primary.main }}>
-                                    <Typography color="common.white" variant="body1" className="align-text__center">Re-Estimate to Complete</Typography>
+                                    <Typography color="common.white" variant="body1" className="align-text__center"><strong>Re-Estimate to Complete</strong></Typography>
                                 </TableCell>
                             </TableRow>
                         </TableHead>
@@ -181,22 +227,22 @@ const SprintSummaryReportDialog = (props) => {
                                         sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                                         style={{ backgroundColor: theme.palette.primary.main }}
                                     >
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" data-is-subheader="true">
                                             <Typography color="common.white" variant="body1" className="align-text__right">{userStorySummary.productBacklogName}</Typography>
                                         </TableCell>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" data-is-subheader="true">
                                             {/* Left empty on purpose. */}
                                         </TableCell>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" data-is-subheader="true">
                                             <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.percentageCompleteTotal.toFixed(0)}%</Typography>
                                         </TableCell>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" data-is-subheader="true">
                                             <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.originalHoursEstimateTotal}</Typography>
                                         </TableCell>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" data-is-subheader="true">
                                             <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.actualHoursWorkedTotal}</Typography>
                                         </TableCell>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell component="th" scope="row" data-is-subheader="true">
                                             <Typography color="common.white" variant="body1" className="align-text__center">{userStorySummary.reestimateToCompleteTotal}</Typography>
                                         </TableCell>
                                     </TableRow>
@@ -208,22 +254,22 @@ const SprintSummaryReportDialog = (props) => {
                                                 style={{ backgroundColor: theme.palette.common.white }}
                                                 size="small"
                                             >
-                                                <TableCell component="th" scope="row">
+                                                <TableCell>
                                                     <Typography variant="body1" className="align-text__right">{subtaskSummary.title}</Typography>
                                                 </TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell>
                                                     <Typography variant="body1" className="align-text__center">{subtaskSummary.assignedToName}</Typography>
                                                 </TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell>
                                                     {/* Left empty on purpose. */}
                                                 </TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell>
                                                     <Typography variant="body1" className="align-text__center">{subtaskSummary.originalHoursEstimate}</Typography>
                                                 </TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell>
                                                 <Typography variant="body1" className="align-text__center">{subtaskSummary.totalHoursWorked}</Typography>
                                                 </TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell>
                                                     <Typography variant="body1" className="align-text__center">{subtaskSummary.reestimateToComplete}</Typography>
                                                 </TableCell>
                                             </TableRow>
@@ -234,25 +280,25 @@ const SprintSummaryReportDialog = (props) => {
                         }
                         <TableFooter>
                             {
-                                getSprintSummaryOverallTotal()?.map((overallTotal, overallTotalIndex) => (
+                                getSprintSummaryOverallTotal()?.map(overallTotal => (
                                     <TableRow>
                                         <TableCell>
                                             <Typography color="common.black" variant="body1" className="align-text__left" strong><strong>Total</strong></Typography>
                                         </TableCell>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell>
                                             {/* Left empty on purpose. */}
                                         </TableCell>
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.percentageCompleteTotal.toFixed(0)}%</Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__center"><strong>{overallTotal.percentageCompleteTotal.toFixed(0)}%</strong></Typography>
                                         </TableCell>
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.originalHoursEstimateTotal}</Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__center"><strong>{overallTotal.originalHoursEstimateTotal}</strong></Typography>
                                         </TableCell>
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.actualHoursWorkedTotal}</Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__center"><strong>{overallTotal.actualHoursWorkedTotal}</strong></Typography>
                                         </TableCell>
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__center">{overallTotal.reestimateToCompleteTotal}</Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__center"><strong>{overallTotal.reestimateToCompleteTotal}</strong></Typography>
                                         </TableCell>
                                     </TableRow>
                                 ))
