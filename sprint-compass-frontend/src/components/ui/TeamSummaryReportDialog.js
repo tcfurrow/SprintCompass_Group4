@@ -82,8 +82,10 @@ const TeamSummaryReportDialog = (props) => {
       teamSummaryReport.push(taskSummary);
     });
 
-    let userStories = state.sprints.filter(sprint => sprint.userStories.length > 0).map((sprint) => sprint.userStories);
-    console.log("", userStories);
+    let userStories = state.sprints
+      .filter((sprint) => sprint.userStories.length > 0)
+      .map((sprint) => sprint.userStories);
+    //console.log("", userStories);
 
     teamSummaryReport?.forEach((task) => {
       let subtask;
@@ -92,20 +94,27 @@ const TeamSummaryReportDialog = (props) => {
           id: member.user.id,
           firstName: member.user.firstName,
           lastName: member.user.lastName,
-          totalHours: 0,
+          totalHours: 1,
         };
 
         userStories?.forEach((story) => {
           if (story !== null) {
-            console.log("story:");
-            console.log("", story);
+            //console.log("story:");
+            //console.log("", story);
             if (story[0].parentProductBacklogTask.id === task.id) {
               story.subtasks?.forEach((substory) => {
                 if (
                   substory.assignedTo.user.id !== null &&
                   substory.assignedTo.user.id === subtask.id
                 ) {
-                  subtask.totalHours += story;
+                  console.log(
+                    `${substory.assignedTo.user.id} and ${subtask.id}`
+                  );
+                  subtask.totalHours += substory.totalHoursWorked;
+                } else {
+                  console.log(
+                    `${substory.assignedTo.user.id} and ${subtask.id}`
+                  );
                 }
               });
             }
@@ -126,8 +135,6 @@ const TeamSummaryReportDialog = (props) => {
   };
 
   const onExportToPdfButtonClicked = () => {
-    console.log("test");
-
     const summaryReportPdf = new jsPDF();
     const teamSummaryTableElement = document.getElementById(
       "team-summary-report-table"
@@ -252,59 +259,61 @@ const TeamSummaryReportDialog = (props) => {
               </TableBody>
             ))}
             <TableFooter>
-              {getTeamSummaryOverallTotal()?.map((overallTotal) => (
-                <TableRow>
-                  <TableCell>
-                    <Typography
-                      color="common.black"
-                      variant="body1"
-                      className="align-text__left"
-                      strong
-                    >
-                      <strong>Total</strong>
-                    </Typography>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {/* Left empty on purpose. */}
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color="common.black"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {overallTotal.percentageCompleteTotal.toFixed(0)}%
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color="common.black"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {overallTotal.originalHoursEstimateTotal}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color="common.black"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {overallTotal.actualHoursWorkedTotal}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      color="common.black"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {overallTotal.reestimateToCompleteTotal}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {getTeamSummaryOverallTotal()?.map(
+                (overallTotal, overallTotalIndex) => (
+                  <TableRow>
+                    <TableCell>
+                      <Typography
+                        color="common.black"
+                        variant="body1"
+                        className="align-text__left"
+                        strong
+                      >
+                        <strong>Total</strong>
+                      </Typography>
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {/* Left empty on purpose. */}
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        color="common.black"
+                        variant="body1"
+                        className="align-text__center"
+                      >
+                        {overallTotal.percentageCompleteTotal.toFixed(0)}%
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        color="common.black"
+                        variant="body1"
+                        className="align-text__center"
+                      >
+                        {overallTotal.originalHoursEstimateTotal}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        color="common.black"
+                        variant="body1"
+                        className="align-text__center"
+                      >
+                        {overallTotal.actualHoursWorkedTotal}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        color="common.black"
+                        variant="body1"
+                        className="align-text__center"
+                      >
+                        {overallTotal.reestimateToCompleteTotal}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
             </TableFooter>
           </Table>
         </TableContainer>
