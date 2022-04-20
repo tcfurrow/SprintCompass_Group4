@@ -82,7 +82,7 @@ const TeamSummaryReportDialog = (props) => {
       teamSummaryReport.push(taskSummary);
     });
 
-    let userStories = state.sprints.map((sprint) => sprint.userStories);
+    let userStories = state.sprints.filter(sprint => sprint.userStories.length > 0).map((sprint) => sprint.userStories);
     console.log("", userStories);
 
     teamSummaryReport?.forEach((task) => {
