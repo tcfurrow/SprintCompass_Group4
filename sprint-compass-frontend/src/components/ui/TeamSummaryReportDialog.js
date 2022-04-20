@@ -47,12 +47,12 @@ const TeamSummaryReportDialog = (props) => {
     try {
       if (backlogData !== null) {
         setState({ backlog: backlogData });
-        console.log(backlogData);
+        //console.log(backlogData);
       }
 
       if (sprintsData !== null) {
         setState({ sprints: sprintsData });
-        console.log(sprintsData);
+        //console.log(sprintsData);
       }
     } catch (error) {
       /*props.showSnackbarMessage(
@@ -69,12 +69,12 @@ const TeamSummaryReportDialog = (props) => {
     let teamMembers = [];
     let teamSummaryReport = [];
     teamMembers = state.sprints[0].project.team.members;
-    teamMembers.forEach((member) => {
-      console.log(`team member: ${member.user.id} ${member.user.firstName}`);
-    });
-
+    // teamMembers.forEach((member) => {
+    //   console.log(`team member: ${member.user.id} ${member.user.firstName}`);
+    // });
     state.backlog.forEach((task) => {
       let taskSummary = {
+        id: task.id,
         priority: task.priority,
         title: task.title,
         subtaskSummary: [],
@@ -82,14 +82,40 @@ const TeamSummaryReportDialog = (props) => {
       teamSummaryReport.push(taskSummary);
     });
 
-    teamSummaryReport.forEach((task) => {
-      // TODO logic to determine team member and hours worked
-      let subtask = {
-        firstName: "",
-        lastName: "",
-        totalHours: 0,
-      };
-      task.subtaskSummary.push(subtask);
+    let userStories = state.sprints.map((sprint) => sprint.userStories);
+    console.log("", userStories);
+
+    teamSummaryReport?.forEach((task) => {
+      let subtask;
+      teamMembers.forEach((member) => {
+        subtask = {
+          id: member.user.id,
+          firstName: member.user.firstName,
+          lastName: member.user.lastName,
+          totalHours: 0,
+        };
+
+        userStories?.forEach((story) => {
+          if (story !== null) {
+            console.log("story:");
+            console.log("", story);
+            if (story[0].parentProductBacklogTask.id === task.id) {
+              story.subtasks?.forEach((substory) => {
+                if (
+                  substory.assignedTo.user.id !== null &&
+                  substory.assignedTo.user.id === subtask.id
+                ) {
+                  subtask.totalHours += story;
+                }
+              });
+            }
+          }
+        });
+
+        if (subtask.totalHours > 0) {
+          task.subtaskSummary.push(subtask);
+        }
+      });
     });
 
     return teamSummaryReport;
@@ -157,39 +183,12 @@ const TeamSummaryReportDialog = (props) => {
                 <TableCell
                   style={{ backgroundColor: theme.palette.primary.main }}
                 >
-                  {/* Left empty on purpose. */}
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: theme.palette.primary.main }}
-                >
                   <Typography
                     color="common.white"
                     variant="body1"
                     className="align-text__center"
                   >
                     User Stories
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: theme.palette.primary.main }}
-                >
-                  <Typography
-                    color="common.white"
-                    variant="body1"
-                    className="align-text__center"
-                  >
-                    Team Member
-                  </Typography>
-                </TableCell>
-                <TableCell
-                  style={{ backgroundColor: theme.palette.primary.main }}
-                >
-                  <Typography
-                    color="common.white"
-                    variant="body1"
-                    className="align-text__center"
-                  >
-                    Actual Hours
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -229,6 +228,9 @@ const TeamSummaryReportDialog = (props) => {
                       size="small"
                     >
                       <TableCell component="th" scope="row">
+                        {/* Left empty on purpose. */}
+                      </TableCell>
+                      <TableCell component="th" scope="row">
                         <Typography
                           variant="body1"
                           className="align-text__right"
@@ -250,60 +252,59 @@ const TeamSummaryReportDialog = (props) => {
               </TableBody>
             ))}
             <TableFooter>
-              {getTeamSummaryOverallTotal()?.map(overallTotal => (
-                  <TableRow>
-                    <TableCell>
-                      <Typography
-                        color="common.black"
-                        variant="body1"
-                        className="align-text__left"
-                        strong
-                      >
-                        <strong>Total</strong>
-                      </Typography>
-                    </TableCell>
-                    <TableCell component="th" scope="row">
-                      {/* Left empty on purpose. */}
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        color="common.black"
-                        variant="body1"
-                        className="align-text__center"
-                      >
-                        {overallTotal.percentageCompleteTotal.toFixed(0)}%
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        color="common.black"
-                        variant="body1"
-                        className="align-text__center"
-                      >
-                        {overallTotal.originalHoursEstimateTotal}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        color="common.black"
-                        variant="body1"
-                        className="align-text__center"
-                      >
-                        {overallTotal.actualHoursWorkedTotal}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        color="common.black"
-                        variant="body1"
-                        className="align-text__center"
-                      >
-                        {overallTotal.reestimateToCompleteTotal}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )
-              )}
+              {getTeamSummaryOverallTotal()?.map((overallTotal) => (
+                <TableRow>
+                  <TableCell>
+                    <Typography
+                      color="common.black"
+                      variant="body1"
+                      className="align-text__left"
+                      strong
+                    >
+                      <strong>Total</strong>
+                    </Typography>
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {/* Left empty on purpose. */}
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      color="common.black"
+                      variant="body1"
+                      className="align-text__center"
+                    >
+                      {overallTotal.percentageCompleteTotal.toFixed(0)}%
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      color="common.black"
+                      variant="body1"
+                      className="align-text__center"
+                    >
+                      {overallTotal.originalHoursEstimateTotal}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      color="common.black"
+                      variant="body1"
+                      className="align-text__center"
+                    >
+                      {overallTotal.actualHoursWorkedTotal}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      color="common.black"
+                      variant="body1"
+                      className="align-text__center"
+                    >
+                      {overallTotal.reestimateToCompleteTotal}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableFooter>
           </Table>
         </TableContainer>
