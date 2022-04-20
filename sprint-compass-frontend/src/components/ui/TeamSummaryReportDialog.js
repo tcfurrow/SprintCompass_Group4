@@ -55,44 +55,44 @@ const TeamSummaryReportDialog = (props) => {
         console.log(sprintsData);
       }
     } catch (error) {
-      props.showSnackbarMessage(
+      /*props.showSnackbarMessage(
         "An error occurred while attempting to fetch projects."
-      );
+      );*/
     }
   };
 
   const generateTeamSummary = () => {
-    if (state.sprints === null) {
+    if (state.sprints === null || state.sprints.length === 0) {
       return null;
-    } else {
-      let teamMembers = [];
-      let teamSummaryReport = [];
-      teamMembers = state.sprints[0].project.team.members;
-      teamMembers.forEach((member) => {
-        console.log(`team member: ${member.user.id} ${member.user.firstName}`);
-      });
-
-      state.backlog.forEach((task) => {
-        let taskSummary = {
-          priority: task.priority,
-          title: task.title,
-          subtaskSummary: [],
-        };
-        teamSummaryReport.push(taskSummary);
-      });
-
-      teamSummaryReport.forEach((task) => {
-        // TODO logic to determine team member and hours worked
-        let subtask = {
-          firstName: "",
-          lastName: "",
-          totalHours: 0,
-        };
-        task.subtaskSummary = subtask;
-      });
-
-      return teamSummaryReport;
     }
+
+    let teamMembers = [];
+    let teamSummaryReport = [];
+    teamMembers = state.sprints[0].project.team.members;
+    teamMembers.forEach((member) => {
+      console.log(`team member: ${member.user.id} ${member.user.firstName}`);
+    });
+
+    state.backlog.forEach((task) => {
+      let taskSummary = {
+        priority: task.priority,
+        title: task.title,
+        subtaskSummary: [],
+      };
+      teamSummaryReport.push(taskSummary);
+    });
+
+    teamSummaryReport.forEach((task) => {
+      // TODO logic to determine team member and hours worked
+      let subtask = {
+        firstName: "",
+        lastName: "",
+        totalHours: 0,
+      };
+      task.subtaskSummary.push(subtask);
+    });
+
+    return teamSummaryReport;
   };
 
   const getTeamSummaryOverallTotal = () => {
@@ -221,7 +221,7 @@ const TeamSummaryReportDialog = (props) => {
                   </TableCell>
                 </TableRow>
                 {teamSummary.subtaskSummary.map(
-                  (subtaskSummary, subtaskIndex) => (
+                  (summaryChunk, subtaskIndex) => (
                     <TableRow
                       key={`sprint-summary-subtask-row-${subtaskIndex}`}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -233,7 +233,7 @@ const TeamSummaryReportDialog = (props) => {
                           variant="body1"
                           className="align-text__right"
                         >
-                          {subtaskSummary.firstName} {subtaskSummary.lastName}
+                          {summaryChunk.firstName} {summaryChunk.lastName}
                         </Typography>
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -241,7 +241,7 @@ const TeamSummaryReportDialog = (props) => {
                           variant="body1"
                           className="align-text__center"
                         >
-                          {subtaskSummary.totalHours}
+                          {summaryChunk.totalHours}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -250,8 +250,7 @@ const TeamSummaryReportDialog = (props) => {
               </TableBody>
             ))}
             <TableFooter>
-              {getTeamSummaryOverallTotal()?.map(
-                (overallTotal, overallTotalIndex) => (
+              {getTeamSummaryOverallTotal()?.map(overallTotal => (
                   <TableRow>
                     <TableCell>
                       <Typography

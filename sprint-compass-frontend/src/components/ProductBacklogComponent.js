@@ -573,7 +573,7 @@ const ProductBacklogComponent = (props) => {
             {getTotalRelativeEstimate()}
           </Typography>
         </div>
-        <div>
+        <div className="flex-gap flex-center">
           <Button
             variant="outlined"
             className="auto-width-big-screens margin-bottom__small"
