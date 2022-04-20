@@ -38,7 +38,7 @@ const TeamSummaryReportDialog = (props) => {
     (async () => {
       await fetchProject();
     })();
-  }, []);
+  }, [projectId]);
 
   const fetchProject = async () => {
     const backlogData = await httpGet(`api/backlog/${projectId}`);
@@ -47,7 +47,7 @@ const TeamSummaryReportDialog = (props) => {
     try {
       if (backlogData !== null) {
         setState({ backlog: backlogData });
-        //console.log(backlogData);
+        console.log(backlogData);
       }
 
       if (sprintsData !== null) {
@@ -62,9 +62,37 @@ const TeamSummaryReportDialog = (props) => {
   };
 
   const generateTeamSummary = () => {
-    let teamSummaryReport = [];
+    if (state.sprints === null) {
+      return null;
+    } else {
+      let teamMembers = [];
+      let teamSummaryReport = [];
+      teamMembers = state.sprints[0].project.team.members;
+      teamMembers.forEach((member) => {
+        console.log(`team member: ${member.user.id} ${member.user.firstName}`);
+      });
 
-    return teamSummaryReport;
+      state.backlog.forEach((task) => {
+        let taskSummary = {
+          priority: task.priority,
+          title: task.title,
+          subtaskSummary: [],
+        };
+        teamSummaryReport.push(taskSummary);
+      });
+
+      teamSummaryReport.forEach((task) => {
+        // TODO logic to determine team member and hours worked
+        let subtask = {
+          firstName: "",
+          lastName: "",
+          totalHours: 0,
+        };
+        task.subtaskSummary = subtask;
+      });
+
+      return teamSummaryReport;
+    }
   };
 
   const getTeamSummaryOverallTotal = () => {
@@ -94,9 +122,7 @@ const TeamSummaryReportDialog = (props) => {
       keepMounted
       fullWidth
     >
-      <DialogTitle>
-        Project Team Name: {state.sprints[0].project.name}
-      </DialogTitle>
+      <DialogTitle>Project Team Name:</DialogTitle>
       <DialogContent className="padding__small">
         <Button
           variant="outlined"
@@ -168,7 +194,7 @@ const TeamSummaryReportDialog = (props) => {
                 </TableCell>
               </TableRow>
             </TableHead>
-            {generateTeamSummary()?.map((userStorySummary, backlogIndex) => (
+            {generateTeamSummary()?.map((teamSummary, backlogIndex) => (
               <TableBody>
                 <TableRow
                   key={`sprint-summary-row-${backlogIndex}`}
@@ -181,19 +207,7 @@ const TeamSummaryReportDialog = (props) => {
                       variant="body1"
                       className="align-text__right"
                     >
-                      {userStorySummary.productBacklogName}
-                    </Typography>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    {/* Left empty on purpose. */}
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Typography
-                      color="common.white"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {userStorySummary.percentageCompleteTotal.toFixed(0)}%
+                      {teamSummary.priority}
                     </Typography>
                   </TableCell>
                   <TableCell component="th" scope="row">
@@ -202,29 +216,11 @@ const TeamSummaryReportDialog = (props) => {
                       variant="body1"
                       className="align-text__center"
                     >
-                      {userStorySummary.originalHoursEstimateTotal}
-                    </Typography>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Typography
-                      color="common.white"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {userStorySummary.actualHoursWorkedTotal}
-                    </Typography>
-                  </TableCell>
-                  <TableCell component="th" scope="row">
-                    <Typography
-                      color="common.white"
-                      variant="body1"
-                      className="align-text__center"
-                    >
-                      {userStorySummary.reestimateToCompleteTotal}
+                      {teamSummary.title}
                     </Typography>
                   </TableCell>
                 </TableRow>
-                {userStorySummary.subtaskSummary.map(
+                {teamSummary.subtaskSummary.map(
                   (subtaskSummary, subtaskIndex) => (
                     <TableRow
                       key={`sprint-summary-subtask-row-${subtaskIndex}`}
@@ -237,7 +233,7 @@ const TeamSummaryReportDialog = (props) => {
                           variant="body1"
                           className="align-text__right"
                         >
-                          {subtaskSummary.title}
+                          {subtaskSummary.firstName} {subtaskSummary.lastName}
                         </Typography>
                       </TableCell>
                       <TableCell component="th" scope="row">
@@ -245,34 +241,7 @@ const TeamSummaryReportDialog = (props) => {
                           variant="body1"
                           className="align-text__center"
                         >
-                          {subtaskSummary.assignedToName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        {/* Left empty on purpose. */}
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        <Typography
-                          variant="body1"
-                          className="align-text__center"
-                        >
-                          {subtaskSummary.originalHoursEstimate}
-                        </Typography>
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        <Typography
-                          variant="body1"
-                          className="align-text__center"
-                        >
-                          {subtaskSummary.totalHoursWorked}
-                        </Typography>
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        <Typography
-                          variant="body1"
-                          className="align-text__center"
-                        >
-                          {subtaskSummary.reestimateToComplete}
+                          {subtaskSummary.totalHours}
                         </Typography>
                       </TableCell>
                     </TableRow>
