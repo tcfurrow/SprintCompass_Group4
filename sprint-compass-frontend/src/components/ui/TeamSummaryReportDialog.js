@@ -72,9 +72,7 @@ const TeamSummaryReportDialog = (props) => {
 
         let teamMembers = state.sprints[0].project.team.members;
         let teamSummaryReport = [];
-
-        console.log(teamMembers);
-
+        
         let backlog = [ ...state.backlog ];
         backlog.sort(compareBacklog);
 
