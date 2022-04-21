@@ -2,7 +2,7 @@
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
 import "../scss/App.scss";
-import { faArrowLeft, faEdit, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faEdit, faPen, faPlus, faRunning, faTrash, faUser, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     Autocomplete,
@@ -241,6 +241,7 @@ const ProjectsComponent = (props) => {
                     onClick={() => setState({ showCreateTeamDialog: true })}
                     fullWidth
                 >
+                    <FontAwesomeIcon icon={faPen} />
                     Create New Team
                 </Button>
             </div>

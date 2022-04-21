@@ -2,7 +2,7 @@
 // By:           Darian Benam, Jordan Fox, Teresa Furrow
 
 import "../scss/App.scss";
-import { faEdit, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faEye, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useReducer } from "react";
 import { ThemeProvider } from "@mui/material/styles";
@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import theme from "../theme";
 import EditProductBacklogTaskDialog from "./ui/EditProductBacklogTaskDialog";
+import TeamSummaryReportDialog from "./ui/TeamSummaryReportDialog";
 import YesNoDialog from "./ui/YesNoDialog";
 
 const ProductBacklogComponent = (props) => {
@@ -45,7 +46,8 @@ const ProductBacklogComponent = (props) => {
         taskCost: -1,
         projectId: -1,
         productBacklogTaskToEdit: null,
-        productBacklogTaskToDelete: null
+        productBacklogTaskToDelete: null,
+        showTeamSummaryReportDialog: false
     };
 
     const reducer = (state, newState) => ({ ...state, ...newState });
@@ -476,10 +478,22 @@ const ProductBacklogComponent = (props) => {
                     <Typography><strong>Total Cost:</strong> {currencyFormatter.format(getTotalCost())}</Typography>
                     <Typography><strong>Total Relative Estimate:</strong> {getTotalRelativeEstimate()}</Typography>
                 </div>
-                <div className="action-buttons-container">
-                    <Button variant="outlined" onClick={onAddTaskButtonClicked}>
+                <div className="flex-gap flex-center">
+                    <Button
+                        variant="outlined"
+                        className="auto-width-big-screens margin-bottom__small"
+                        onClick={onAddTaskButtonClicked}
+                    >
                         <FontAwesomeIcon icon={faPlus} />
                         Add New Product To Backlog
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        className="auto-width-big-screens margin-bottom__small"
+                        onClick={() => setState({ showTeamSummaryReportDialog: true })}
+                    >
+                        <FontAwesomeIcon icon={faEye} />
+                        View Team Summary Report
                     </Button>
                 </div>
             </div>
@@ -540,6 +554,12 @@ const ProductBacklogComponent = (props) => {
                 content={`Are you sure you want to delete the product backlog task "${state.productBacklogTaskToDelete?.title}" (id: ${state.productBacklogTaskToDelete?.id})? This operation can not be reversed.`}
                 onYesClicked={deleteProductBacklogTask}
                 onNoClicked={() => setState({ productBacklogTaskToDelete: null })}
+            />
+            <TeamSummaryReportDialog
+                openDialog={state.showTeamSummaryReportDialog}
+                projectId={state.projectId}
+                teamName={state.projectTeamName}
+                onClose={() => setState({ showTeamSummaryReportDialog: false })}
             />
         </ThemeProvider>
     );
