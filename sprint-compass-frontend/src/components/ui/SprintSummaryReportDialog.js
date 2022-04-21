@@ -207,9 +207,8 @@ const SprintSummaryReportDialog = (props) => {
                         </TableHead>
                         {
                             generateSprintSummary()?.map((userStorySummary, backlogIndex) => (
-                                <TableBody>
+                                <TableBody key={`sprint-summary-row-${backlogIndex}`}>
                                     <TableRow
-                                        key={`sprint-summary-row-${backlogIndex}`}
                                         sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                                         style={{ backgroundColor: theme.palette.primary.main }}
                                     >
@@ -266,10 +265,12 @@ const SprintSummaryReportDialog = (props) => {
                         }
                         <TableFooter>
                             {
-                                getSprintSummaryOverallTotal()?.map(overallTotal => (
-                                    <TableRow>
+                                getSprintSummaryOverallTotal()?.map((overallTotal, overallTotalIndex) => (
+                                    <TableRow
+                                        key={`sprint-summary-overall-total-footer-row-${overallTotalIndex}`}
+                                    >
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__left" strong><strong>Total</strong></Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__left"><strong>Total</strong></Typography>
                                         </TableCell>
                                         <TableCell>
                                             {/* Left empty on purpose. */}

@@ -157,13 +157,12 @@ const ProjectTaskDetailsDialog = (props) => {
                                             style={{ backgroundColor: theme.palette.common.white }}
                                         >
                                             <TableCell component="th" scope="row">
-                                                <Typography key={`table-row-user-story-title-${index}`}>{subtask.title}</Typography>
+                                                <Typography>{subtask.title}</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
                                                 <FormControl size="small" fullWidth>
                                                     <InputLabel>Team Member</InputLabel>
                                                     <Select
-                                                        key={`table-row-subtask-team-member-${index}`}
                                                         label="Team Member"
                                                         value={subtask.assignedTo?.id ?? -1}
                                                         onChange={(e) => onSubtaskTeamMemberAssignedToUpdated(e, subtask.id)}
@@ -171,10 +170,7 @@ const ProjectTaskDetailsDialog = (props) => {
                                                         <MenuItem value={-1}>Unassigned</MenuItem>
                                                         {
                                                             teamMemberList?.map((teamMember, teamMemberIndex) => (
-                                                                <MenuItem
-                                                                    key={`select-menu-item-team-member-${teamMemberIndex}`}
-                                                                    value={teamMember.id}
-                                                                >
+                                                                <MenuItem value={teamMember.id}>
                                                                     {`${teamMember.user.firstName} ${teamMember.user.lastName}`}
                                                                 </MenuItem>
                                                             ))
@@ -186,7 +182,6 @@ const ProjectTaskDetailsDialog = (props) => {
                                                 <FormControl size="small" fullWidth>
                                                     <InputLabel>Status</InputLabel>
                                                     <Select
-                                                        key={`select-menu-item-subtask-status-${index}`}
                                                         label="Status"
                                                         value={subtask.status}
                                                         onChange={(e) => onSubtaskStatusUpdated(e, subtask.id)}
@@ -200,13 +195,13 @@ const ProjectTaskDetailsDialog = (props) => {
                                                 </FormControl>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                <Typography key={`table-row-subtask-hours-estimate-${index}`}>{subtask.initialHoursEstimate} hour(s)</Typography>
+                                                <Typography>{subtask.initialHoursEstimate} hour(s)</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                <Typography key={`table-row-subtask-total-hours-worked-${index}`}>{subtask.totalHoursWorked} hour(s)</Typography>
+                                                <Typography>{subtask.totalHoursWorked} hour(s)</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                <Typography key={`table-row-subtask-hours-re-estimate-${index}`}>{subtask.hoursReestimate} hour(s)</Typography>
+                                                <Typography>{subtask.hoursReestimate} hour(s)</Typography>
                                             </TableCell>
                                             <TableCell component="th" scope="row">
                                                 <div className="flex-gap">

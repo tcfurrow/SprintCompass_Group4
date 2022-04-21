@@ -457,17 +457,17 @@ const ViewSprintsComponent = (props) => {
                                                                 style={{ backgroundColor: theme.palette.common.white }}
                                                             >
                                                                 <TableCell component="th" scope="row">
-                                                                    <Typography key={`table-row-user-story-priority-${index}`}>
+                                                                    <Typography>
                                                                         {userStory.parentProductBacklogTask.priority}
                                                                     </Typography>
                                                                 </TableCell>
                                                                 <TableCell component="th" scope="row">
-                                                                    <Typography key={`table-row-user-story-title-${index}`}>
+                                                                    <Typography>
                                                                         {userStory.parentProductBacklogTask.title}
                                                                     </Typography>
                                                                 </TableCell>
                                                                 <TableCell component="th" scope="row">
-                                                                    <Typography key={`table-row-user-story-description-${index}`}>
+                                                                    <Typography>
                                                                         {userStory.parentProductBacklogTask.description}
                                                                     </Typography>
                                                                 </TableCell>
