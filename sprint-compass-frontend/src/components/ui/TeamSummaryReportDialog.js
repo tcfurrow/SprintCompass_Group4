@@ -72,7 +72,7 @@ const TeamSummaryReportDialog = (props) => {
 
         let teamMembers = state.sprints[0].project.team.members;
         let teamSummaryReport = [];
-        
+
         let backlog = [ ...state.backlog ];
         backlog.sort(compareBacklog);
 
@@ -144,7 +144,7 @@ const TeamSummaryReportDialog = (props) => {
 
     const onExportToPdfButtonClicked = () => {
         const summaryReportPdf = new jsPDF();
-        const teamSummaryTableElement = document.getElementById("#team-summary-report-table");
+        const teamSummaryTableElement = document.getElementById("team-summary-report-table");
 
         if (teamSummaryTableElement !== null) {
             summaryReportPdf.text(`Team Summary Report - ${props.teamName}`, 10, 10);
