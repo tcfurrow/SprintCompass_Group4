@@ -82,47 +82,59 @@ const TeamSummaryReportDialog = (props) => {
       teamSummaryReport.push(taskSummary);
     });
 
+    console.log("", teamSummaryReport);
+
     let userStories = state.sprints
       .filter((sprint) => sprint.userStories.length > 0)
       .map((sprint) => sprint.userStories);
-    //console.log("", userStories);
+    console.log("", userStories);
 
     teamSummaryReport?.forEach((task) => {
-      let subtask;
+      let memberData;
       teamMembers.forEach((member) => {
-        subtask = {
+        memberData = {
           id: member.user.id,
           firstName: member.user.firstName,
           lastName: member.user.lastName,
-          totalHours: 1,
+          totalHours: 0,
         };
 
         userStories?.forEach((story) => {
+          let i = 0;
+
           if (story !== null) {
             //console.log("story:");
             //console.log("", story);
-            if (story[0].parentProductBacklogTask.id === task.id) {
-              story.subtasks?.forEach((substory) => {
-                if (
-                  substory.assignedTo.user.id !== null &&
-                  substory.assignedTo.user.id === subtask.id
-                ) {
-                  console.log(
-                    `${substory.assignedTo.user.id} and ${subtask.id}`
-                  );
-                  subtask.totalHours += substory.totalHoursWorked;
-                } else {
-                  console.log(
-                    `${substory.assignedTo.user.id} and ${subtask.id}`
-                  );
+            if (story[i].parentProductBacklogTask.id === task.id) {
+              console.log(
+                `${story[i].parentProductBacklogTask.id} = ${task.id}`
+              );
+              console.log("", story[i].subtasks);
+              story[i].subtasks?.forEach((substory) => {
+                if (substory.assignedTo != null) {
+                  if (substory.assignedTo.user.id === memberData.id) {
+                    console.log(
+                      `if ${substory.assignedTo.user.id} and ${memberData.id}`
+                    );
+                    memberData.totalHours += substory.totalHoursWorked;
+                  } else {
+                    console.log(
+                      `else ${substory.assignedTo.user.id} and ${memberData.id}`
+                    );
+                  }
                 }
               });
+            } else {
+              console.log(
+                `${story[i].parentProductBacklogTask.id} != ${task.id}`
+              );
             }
+            i++;
           }
         });
 
-        if (subtask.totalHours > 0) {
-          task.subtaskSummary.push(subtask);
+        if (memberData.totalHours > 0) {
+          task.subtaskSummary.push(memberData);
         }
       });
     });
