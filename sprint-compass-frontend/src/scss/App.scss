@@ -83,6 +83,12 @@ button {
     }
 }
 
+.margin-top {
+    &__small {
+        margin-top: 4vh !important;
+    }
+}
+
 .padding {
     &__small {
         padding: 1.5em !important;

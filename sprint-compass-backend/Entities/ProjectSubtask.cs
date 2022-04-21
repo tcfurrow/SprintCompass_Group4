@@ -9,15 +9,23 @@ namespace SprintCompassBackend.Entities
         public string Title { get; set; }
         public TeamMember? AssignedTo { get; set; }
         public SubtaskStatus Status { get; set; }
+        public double InitialHoursEstimate { get; set; }
         public double TotalHoursWorked { get; set; }
         public double HoursReestimate { get; set; }
 
-        public ProjectSubtask(int id, string title, TeamMember? assignedTo, SubtaskStatus status, double totalHoursWorked, double hoursReestimate)
+        public ProjectSubtask(int id,
+                              string title,
+                              TeamMember? assignedTo,
+                              SubtaskStatus status,
+                              double initialHoursEstimate,
+                              double totalHoursWorked,
+                              double hoursReestimate)
         {
             Id = id;
             Title = title;
             AssignedTo = assignedTo;
             Status = status;
+            InitialHoursEstimate = initialHoursEstimate;
             TotalHoursWorked = totalHoursWorked;
             HoursReestimate = hoursReestimate;
         }

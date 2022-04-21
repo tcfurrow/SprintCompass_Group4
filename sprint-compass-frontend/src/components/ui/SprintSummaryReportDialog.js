@@ -26,22 +26,11 @@ const SprintSummaryReportDialog = (props) => {
     const sprintList = props?.sprintList;
     const selectedSprint = props?.selectedSprint;
 
-    const getPreviousSprint = (sprintId) => {
-        const sprintIndex = sprintList.findIndex(sprint => sprint.id === sprintId);
-    
-        if (sprintIndex - 1 < 0) {
-            return null;
-        }
-
-        return sprintList[sprintIndex - 1];
-    }
-
     const generateSprintSummary = () => {
         if (sprintList === null || selectedSprint == null) {
             return null;
         }
 
-        const previousSprint = getPreviousSprint(selectedSprint.id);
         let sprintSummaryReport = [];
 
         selectedSprint.userStories.forEach(userStory => {
@@ -51,13 +40,10 @@ const SprintSummaryReportDialog = (props) => {
             };
 
             userStory.subtasks.forEach(subtask => {
-                const previousUserStory = previousSprint?.userStories.find(previousUserStory => previousUserStory.parentProductBacklogTask.id === userStory.parentProductBacklogTask.id);
-                const previousSubtask = previousUserStory?.subtasks.find(previousSubtask => subtask.title === previousSubtask.title);
-
                 let subtaskSummary = {
                     title: subtask.title,
                     assignedToName: subtask.assignedTo === null ? "Unassigned" : `${subtask.assignedTo.user.firstName} ${subtask.assignedTo.user.lastName}`,
-                    originalHoursEstimate: previousSubtask?.hoursReestimate ?? "N/A",
+                    originalHoursEstimate: subtask.initialHoursEstimate,
                     totalHoursWorked: subtask.totalHoursWorked,
                     reestimateToComplete: subtask.hoursReestimate
                 };
@@ -221,9 +207,8 @@ const SprintSummaryReportDialog = (props) => {
                         </TableHead>
                         {
                             generateSprintSummary()?.map((userStorySummary, backlogIndex) => (
-                                <TableBody>
+                                <TableBody key={`sprint-summary-row-${backlogIndex}`}>
                                     <TableRow
-                                        key={`sprint-summary-row-${backlogIndex}`}
                                         sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                                         style={{ backgroundColor: theme.palette.primary.main }}
                                     >
@@ -280,10 +265,12 @@ const SprintSummaryReportDialog = (props) => {
                         }
                         <TableFooter>
                             {
-                                getSprintSummaryOverallTotal()?.map(overallTotal => (
-                                    <TableRow>
+                                getSprintSummaryOverallTotal()?.map((overallTotal, overallTotalIndex) => (
+                                    <TableRow
+                                        key={`sprint-summary-overall-total-footer-row-${overallTotalIndex}`}
+                                    >
                                         <TableCell>
-                                            <Typography color="common.black" variant="body1" className="align-text__left" strong><strong>Total</strong></Typography>
+                                            <Typography color="common.black" variant="body1" className="align-text__left"><strong>Total</strong></Typography>
                                         </TableCell>
                                         <TableCell>
                                             {/* Left empty on purpose. */}
